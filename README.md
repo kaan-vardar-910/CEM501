@@ -103,3 +103,4 @@ See [SUBMISSION_GUIDELINES.md](SUBMISSION_GUIDELINES.md) for homework and projec
 
 **Dr. Eyuphan Koc** | eyuphan.koc@bogazici.edu.tr
 Department of Civil Engineering, Bogazici University
+Kaan Vardar | Civil Engineer 
