@@ -72,3 +72,6 @@ Under **Section 15.1.4**, pending final resolution of a Claim (except as otherwi
 
 #### 4. Adverse Weather Conditions
 Under **Section 15.1.6.2**, if adverse weather conditions are the basis for a Claim for additional time, the Notice must be documented by data substantiating that weather conditions were abnormal for the period of time, could not have been reasonably anticipated, and had an adverse effect on the scheduled construction.
+
+---------------------------------------------
+The LLM output is quite fast (considering i use 3 prompts all together) and uses professional CEM terms like critical path and RFI structure properly. However, I noticed some "hallucinations" where the AI added specific drawing numbers like S-301 and M-402 which I never mentioned in my prompts. It also focused heavily on the Claims section for the AIA summary even though I asked for a general delay notice, showing it can sometimes go off-track. Also final mail draft is missing a signature. Overall, its a good tool for drafting but needs careful human check because it fills the gaps with made up data. 
