@@ -1,0 +1,52 @@
+CRANE DAILY OPERATION LOG
+
+Date: 14/03/2026
+Crane: MC-02, Liebherr LTM 1150, 150 ton
+Operator: Burak Ozdemir
+Project: Kadikoy Bridge
+
+Pre-shift inspection: PASS (07:00)
+  - Wire rope: OK
+  - Hydraulics: OK
+  - Outriggers: Set and level
+  - Load chart posted: Yes
+  - Wind speed at start: 18 km/h (within limits)
+
+Operations:
+
+08:00-09:30  Pier 4 — assisted Kaya Steel with
+             bearing pad removal. Lifted corroded
+             steel plate (~800 kg) to laydown area.
+
+10:00-10:20  Span 3 — lifted formwork panels to
+             deck level (3 lifts, ~1200 kg each)
+
+10:45-11:00  Span 3 — repositioned to south side
+             for additional formwork lifts
+
+11:15-12:00  LUNCH / standby
+
+13:00-14:30  Span 3 — continued formwork panel
+             lifts (4 lifts)
+
+14:50-15:00  *** STOPPAGE ***
+             Formwork panel shifted during lift.
+             Rigging inspection ordered by super.
+             Found worn shackle — replaced.
+
+15:15-16:30  Span 3 — resumed lifts after rigging
+             cleared (3 more lifts)
+
+16:30-17:00  Shutdown and secure
+
+Wind readings:
+  07:00 — 18 km/h
+  12:00 — 12 km/h (rain stopped)
+  15:00 — 8 km/h
+
+Total lifts today: 13
+Fuel: 3/4 tank start, ~1/2 tank end
+
+No mechanical issues.
+
+Signed: B. Ozdemir

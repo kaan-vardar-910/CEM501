@@ -1,0 +1,30 @@
+YOLTEK TRAFIK HIZMETLERI
+Daily Traffic Control Report
+
+Date: 14 March 2026
+Project: Kadikoy Bridge Rehab
+TC Supervisor: Serkan Polat
+
+Setup time: 06:15
+Lane closure active: 06:30 (southbound approach,
+  right lane closed from Sta 0+020 to Sta 0+090)
+Lane closure removed: 17:00
+Teardown complete: 17:20
+
+Personnel on duty:
+  2 flaggers (06:15-17:20)
+  1 TC supervisor (06:15-17:20)
+
+Traffic incidents: None
+Police contact: None
+Complaints received: None
+
+Note: One driver stopped to ask about detour for
+next week. I told him to check the IBB website for
+updates. Not a complaint.
+
+Weather impact on traffic: Light rain mid-morning
+caused some slower traffic but no issues with the
+closure setup. Signs and cones remained stable.
+
+Signed: S. Polat

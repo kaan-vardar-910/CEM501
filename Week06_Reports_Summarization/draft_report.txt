@@ -1,0 +1,138 @@
+## DAILY CONSTRUCTION REPORT
+
+**Project:** Kadikoy Bridge Rehabilitation (BR-2024-071)
+**Date:** March 14, 2026
+**Report No:** 20260314-01
+
+---
+
+**1. GENERAL PROJECT INFORMATION**
+
+*   **Superintendent:** T. Aksoy
+*   **Project Engineer:** E. Sahin (on site until 14:00)
+*   **Safety Officer:** T. Aksoy (acting)
+*   **Total Personnel On Site:** 22
+    *   General Contractor (GC) Labor: 5
+    *   Beton Plus (Concrete): 10 (H. Eren, Foreman)
+    *   Kaya Steel (Structural Steel): 6 (M. Yildiz, Foreman - 2 workers absent due to sickness)
+    *   Yoltek Trafik Hizmetleri (Traffic Control): 3 (S. Polat, Supervisor + 2 Flaggers)
+    *   Visitors: 1 (Dr. Arslan, Geotechnical)
+*   **Weather Conditions:**
+    *   Morning (07:00): Overcast, 6°C, Wind from North (15-20 km/h).
+    *   Mid-morning (10:30-12:30): Light drizzle/rain.
+    *   Afternoon (14:00): 11°C, Partly sunny, wind died down.
+    *   Night (Previous): Moderate rain (22:15 - 01:30).
+
+---
+
+**2. WORK PERFORMED**
+
+**A. Concrete Placement (Beton Plus)**
+*   **Activity:** Concrete pour for South approach slab.
+*   **Location:** Sta 0+040 to Sta 0+065.
+*   **Quantities:** **7.8 m³** of C35/45 concrete mix delivered and placed.
+*   **Timeline:**
+    *   Concrete truck arrived: 10:55
+    *   Pump start: 11:10
+    *   Pour complete: 13:22
+    *   Truck departed: 13:40
+    *   Concrete pump truck on site: 10:30 - 14:00
+*   **Quality Control:**
+    *   Slump at plant: 180 mm.
+    *   Slump at site (tested by E. Sahin): 165 mm.
+    *   Air temperature at pour start: 9°C.
+    *   Concrete vibrated properly, no issues reported.
+    *   Wet curing commenced upon completion.
+*   **Sampling:** 3 cylinder sets taken by E. Sahin (7-day, 28-day, spare). Sample IDs: KBR-0314-01, KBR-0314-02, KBR-0314-03.
+
+**B. Formwork Installation (Beton Plus)**
+*   **Activity:** Deck formwork setup on Span 3.
+*   **Location:** Grids D4 to D7, east side.
+*   **Progress:** Approximately 70% of the planned formwork for this section was completed today. Area anticipated to be ready for rebar by tomorrow afternoon.
+
+**C. Bearing Replacement (Kaya Steel)**
+*   **Activity:** Pier 4 East (P4-E) bearing removal and seat preparation.
+*   **Details:** Old neoprene bearing pad was successfully removed. Due to being fused to the steel plate, removal took most of the morning. Bearing seat cleaned and prepared for new pad by 14:00.
+*   **Crane Support:** Mobile Crane MC-02 assisted with lifting a corroded steel plate (~800 kg) to the laydown area.
+
+**D. Crane Operations (MC-02, Operator B. Ozdemir)**
+*   **Equipment:** Liebherr LTM 1150 (150-ton mobile crane). Pre-shift inspection passed (07:00).
+*   **Operations:**
+    *   08:00-09:30: Pier 4 – Assisted Kaya Steel with bearing pad removal.
+    *   10:00-10:20: Span 3 – Lifted formwork panels (3 lifts, ~1200 kg each).
+    *   10:45-11:00: Repositioned for additional formwork lifts.
+    *   13:00-14:30: Span 3 – Continued formwork panel lifts (4 lifts).
+    *   15:15-16:30: Span 3 – Resumed formwork lifts after safety stoppage (3 more lifts).
+    *   **Total Lifts Today:** 13.
+*   **Wind Readings:** 07:00 (18 km/h), 12:00 (12 km/h), 15:00 (8 km/h). All within operational limits.
+
+**E. Traffic Control (Yoltek Trafik Hizmetleri)**
+*   **Activity:** Southbound approach right lane closure.
+*   **Location:** Sta 0+020 to Sta 0+090.
+*   **Timeline:**
+    *   Setup time: 06:15
+    *   Lane closure active: 06:30
+    *   Lane closure removed: 17:00
+    *   Teardown complete: 17:20
+*   **Observations:** No traffic incidents or police contact. No complaints received. Light rain mid-morning caused some slower traffic but did not impact closure stability.
+
+---
+
+**3. EQUIPMENT ON SITE**
+
+*   **Mobile Crane (MC-02):** Active, as detailed above. No mechanical issues reported.
+*   **Concrete Pump Truck:** Active, as detailed above.
+*   **Concrete Mixer Truck (#14):** Active, as detailed above.
+*   **Backhoe:** Idle at the north abutment (Day 3). Found to have a flat tire on the rear left wheel by night watchman. Awaiting utility locate before drainage excavation can begin.
+*   **Vibrating Compactor:** On standby, not required today.
+
+---
+
+**4. SAFETY AND ENVIRONMENTAL**
+
+*   **Toolbox Talk:** Held at 07:00. Topic: Working over water / fall protection for pier scaffolding. 19 attendees.
+*   **Incidents:** None.
+*   **Near Miss:**
+    *   **Time:** Approximately 15:00
+    *   **Location:** Span 3, east side.
+    *   **Description:** A formwork panel slipped from rigging during a crane lift and fell approximately 2 meters before being caught by a safety line. No personnel were in the drop zone.
+    *   **Immediate Action:** Work was stopped for 15 minutes for rigging inspection. A worn shackle was identified and immediately replaced. Foreman H. Eren (Beton Plus) was instructed to implement pre-lift rigging checks for all subsequent lifts.
+    *   **Photos:** IMG_345, IMG_346 documented the event and worn shackle.
+*   **End of Day Procedures:** All personnel confirmed off-site by 17:15. Site secured by night watchman as per standard procedures.
+
+---
+
+**5. SITE VISITS**
+
+*   **Dr. Arslan (Geotechnical Engineer):** Arrived at approximately 09:00 for 45 minutes. Inspected scour protection at Pier 2 and expressed satisfaction for now, requesting a return visit after the next heavy rain event.
+
+---
+
+**6. ISSUES AND DELAYS**
+
+*   **RFI-018 (Anchor Bolt Specification for New Bearing Plates):** This RFI, submitted on Feb 19, remains outstanding. Kaya Steel foreman Mehmet Yildiz reported that his crew cannot proceed with the installation of new bearing plates at Pier 4 without this specification. Work ceased for Kaya Steel at 14:00 due to lack of further tasks related to this hold. This RFI is critical path for Piers 4 and 5. Superintendent T. Aksoy contacted the office at 10:00 regarding the delay.
+*   **Utility Locate (UTL-2026-0283):** Delay in obtaining utility locates from Istanbul Metropolitan Municipality (IBB) is preventing drainage excavation at the north abutment (Day 3 of delay for backhoe). Project Engineer E. Sahin made her third call today. A voicemail received from IBB indicates:
+    *   IGDAS (gas line) locate: March 20 at earliest.
+    *   ISKI (water line) locate: March 18 or 19.
+*   **Subcontractor Personnel Shortage:** Kaya Steel operated with 6 ironworkers instead of 8 today due to two workers calling in sick.
+
+---
+
+**7. LOOK AHEAD / NEXT STEPS**
+
+*   Continue Span 3 deck formwork to completion.
+*   Await RFI-018 response to proceed with Pier 4-E bearing installation.
+*   Await utility locate results to commence drainage excavation at the north abutment.
+
+---
+
+**8. ATTACHMENTS**
+
+*   Photo Log (IMG_341 to IMG_346)
+*   Concrete Delivery Ticket BP-2026-1847
+*   Site Safety Log Entry (Page 47)
+*   Crane Daily Operation Log
+*   Daily Traffic Control Report
+
+---
+**Prepared By:** T. Aksoy, Superintendent
