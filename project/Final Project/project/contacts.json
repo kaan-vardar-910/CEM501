@@ -1,0 +1,46 @@
+{
+  "contacts": [
+    {
+      "name": "Safety Inspector",
+      "email": "inspector@example.com",
+      "role": "",
+      "importance": "normal",
+      "cc_always": false
+    },
+    {
+      "name": "Project Architect",
+      "email": "architect@example.com",
+      "role": "",
+      "importance": "normal",
+      "cc_always": false
+    },
+    {
+      "name": "Project Scheduler",
+      "email": "scheduler@example.com",
+      "role": "",
+      "importance": "normal",
+      "cc_always": false
+    },
+    {
+      "name": "Kaan Vardar",
+      "email": "kaanvardar99@gmail.com",
+      "role": "",
+      "importance": "normal",
+      "cc_always": false
+    },
+    {
+      "name": "Anthropic",
+      "email": "no-reply-c7ydq76i0-jfwexnf7e62q@mail.anthropic.com",
+      "role": "",
+      "importance": "normal",
+      "cc_always": false
+    },
+    {
+      "name": "Mail Delivery Subsystem",
+      "email": "mailer-daemon@googlemail.com",
+      "role": "",
+      "importance": "normal",
+      "cc_always": false
+    }
+  ]
+}

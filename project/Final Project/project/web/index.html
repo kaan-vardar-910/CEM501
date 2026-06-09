@@ -1,0 +1,2063 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CEM501 Agent — Test Dashboard</title>
+<style>
+  :root {
+    --bg: #0d1117; --panel: #161b22; --panel2: #1c2330; --border: #2a3340;
+    --text: #e6edf3; --muted: #8b949e; --accent: #2f81f7;
+    --urgent: #f85149; --action: #d29922; --fyi: #58a6ff; --archive: #6e7681;
+    --ok: #3fb950;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 14px; line-height: 1.5;
+  }
+  header {
+    padding: 18px 24px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+    background: linear-gradient(180deg, #11161d, #0d1117);
+  }
+  header h1 { font-size: 18px; margin: 0; font-weight: 650; }
+  header .sub { color: var(--muted); font-size: 12px; }
+  .status { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
+  .chip {
+    font-size: 11px; padding: 3px 9px; border-radius: 20px;
+    border: 1px solid var(--border); background: var(--panel2); color: var(--muted);
+  }
+  .chip.on { color: var(--ok); border-color: #2ea04366; }
+  .chip.off { color: var(--archive); }
+  .layout { display: flex; min-height: calc(100vh - 70px); }
+  nav {
+    width: 210px; border-right: 1px solid var(--border); padding: 14px 10px;
+    background: var(--panel);
+  }
+  nav button {
+    display: block; width: 100%; text-align: left; background: none; border: none;
+    color: var(--muted); padding: 10px 12px; border-radius: 8px; cursor: pointer;
+    font-size: 13.5px; margin-bottom: 2px;
+  }
+  nav button:hover { background: var(--panel2); color: var(--text); }
+  nav button.active { background: #1f6feb22; color: var(--text); font-weight: 600; }
+  main { flex: 1; padding: 24px 28px; max-width: 1000px; }
+  h2 { font-size: 16px; margin: 0 0 4px; }
+  .desc { color: var(--muted); margin: 0 0 18px; font-size: 13px; }
+  .card { background: var(--panel); border: 1px solid var(--border);
+    border-radius: 12px; padding: 18px; margin-bottom: 18px; }
+  button.btn {
+    background: var(--accent); color: #fff; border: none; padding: 9px 16px;
+    border-radius: 8px; cursor: pointer; font-size: 13.5px; font-weight: 600;
+  }
+  button.btn:hover { filter: brightness(1.1); }
+  button.btn.secondary { background: var(--panel2); color: var(--text);
+    border: 1px solid var(--border); }
+  button.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  label { display: block; font-size: 12px; color: var(--muted); margin: 10px 0 4px; }
+  input, textarea, select {
+    width: 100%; background: var(--bg); border: 1px solid var(--border);
+    color: var(--text); border-radius: 8px; padding: 8px 10px; font-size: 13px;
+    font-family: inherit;
+  }
+  textarea { resize: vertical; min-height: 70px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--border);
+    font-size: 13px; vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; font-size: 11px; text-transform: uppercase; }
+  .badge { font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 6px;
+    letter-spacing: 0.3px; }
+  .b-URGENT { background: #f8514922; color: var(--urgent); }
+  .b-ACTION { background: #d2992222; color: var(--action); }
+  .b-FYI { background: #58a6ff22; color: var(--fyi); }
+  .b-ARCHIVE { background: #6e768122; color: var(--archive); }
+  pre {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+    padding: 14px; white-space: pre-wrap; word-wrap: break-word; font-size: 12.5px;
+    color: #d6dee8; max-height: 460px; overflow: auto;
+  }
+  .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .toggle { display: flex; align-items: center; gap: 8px; color: var(--muted);
+    font-size: 12.5px; }
+  .warn { color: var(--action); font-size: 12.5px; margin: 4px 0; }
+  .err { color: var(--urgent); }
+  .ok { color: var(--ok); }
+  .spinner { color: var(--muted); font-size: 12.5px; }
+  .hidden { display: none; }
+  a.link { color: var(--accent); cursor: pointer; }
+  /* Digest rich view */
+  .dg-head { display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; margin-bottom:14px; }
+  .dg-head h3 { margin:0; font-size:16px; }
+  .dg-head .meta { color: var(--muted); font-size:12px; }
+  .dg-counts { display:flex; gap:8px; flex-wrap:wrap; margin:10px 0 0; }
+  .dg-count { font-size:12px; font-weight:700; padding:4px 10px; border-radius:8px; }
+  .dg-section { border-left:4px solid var(--border); padding:2px 0 2px 14px; margin:16px 0; }
+  .dg-section h4 { margin:0 0 10px; font-size:13px; text-transform:uppercase; letter-spacing:.4px; }
+  .dg-item { padding:10px 0; border-bottom:1px solid var(--border); }
+  .dg-item:last-child { border-bottom:none; }
+  .dg-item .subj { font-weight:700; color:var(--text); }
+  .dg-item .from { color:var(--muted); font-size:12px; margin-left:6px; }
+  .dg-item .sum { color:#c9d4e0; font-size:13px; margin-top:4px; }
+  .suggest { margin-top:5px; font-size:12.5px; color:#d6dee8; background:#1f6feb14;
+    border:1px solid #1f6feb33; border-radius:7px; padding:5px 9px; }
+  .suggest-label { color: var(--accent); font-weight:700; }
+  .dg-action { display:flex; gap:10px; align-items:flex-start; padding:8px 0; border-bottom:1px solid var(--border); }
+  .dg-action:last-child { border-bottom:none; }
+  .dg-action .num { font-weight:800; color:var(--accent); min-width:20px; }
+  .dg-action.todo { cursor:pointer; }
+  .dg-action.todo:hover { background: var(--panel2); }
+  .dg-action .todo-box { width:18px; height:18px; margin-top:2px; flex:0 0 auto; cursor:pointer; accent-color: var(--accent); }
+  .dg-action .todo-body { flex:1; }
+  .dg-action.done .todo-body b { text-decoration: line-through; }
+  .dg-action.done .todo-body { opacity:.55; }
+  .dg-flag { display:flex; align-items:center; gap:8px; padding:6px 0; }
+  .dg-empty { color:var(--muted); font-size:13px; }
+  .sec-URGENT { border-left-color: var(--urgent); }
+  .sec-URGENT h4 { color: var(--urgent); }
+  .sec-ACTION { border-left-color: var(--action); }
+  .sec-ACTION h4 { color: var(--action); }
+  .sec-FYI { border-left-color: var(--fyi); }
+  .sec-FYI h4 { color: var(--fyi); }
+  .sec-ACTIONS { border-left-color: var(--accent); }
+  .sec-ACTIONS h4 { color: var(--accent); }
+  .sec-FLAG { border-left-color: var(--urgent); }
+  .sec-FLAG h4 { color: var(--urgent); }
+  /* Dropdown menus (Save / Send) */
+  .dropdown { position: relative; display: inline-block; }
+  .dropdown .menu { display:none; position:absolute; top:calc(100% + 4px); left:0; z-index:50;
+    background:var(--panel); border:1px solid var(--border); border-radius:8px; min-width:190px;
+    box-shadow:0 8px 24px #0008; overflow:hidden; }
+  .dropdown.open .menu { display:block; }
+  .dropdown .menu a { display:block; padding:9px 14px; font-size:13px; color:var(--text); cursor:pointer; }
+  .dropdown .menu a:hover { background:var(--panel2); }
+  /* Send dialog modal */
+  .modal-overlay { position:fixed; inset:0; background:#0009; display:flex; align-items:flex-start;
+    justify-content:center; z-index:100; padding:40px 16px; overflow:auto; }
+  .modal-overlay.hidden { display:none; }
+  .modal { background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:22px;
+    width:100%; max-width:560px; }
+  .modal-head { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+  .modal-head h3 { margin:0; font-size:16px; }
+  .contact-picker { max-height:150px; overflow:auto; border:1px solid var(--border);
+    border-radius:8px; padding:6px; margin:6px 0 4px; }
+  .cp-row { display:flex; align-items:center; gap:8px; padding:4px 6px; font-size:13px; }
+  .cp-add { color:var(--accent); cursor:pointer; font-weight:600; white-space:nowrap; }
+  .cp-meta { color:var(--muted); }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>CEM501 AI Communication Agent</h1>
+    <div class="sub">Local test dashboard · 127.0.0.1 · sends default to dry-run</div>
+  </div>
+  <div class="status" id="status"></div>
+</header>
+
+<div class="layout">
+  <nav>
+    <button data-tab="inbox" class="active">Inbox &amp; Triage</button>
+    <button data-tab="digest">Morning Digest</button>
+    <button data-tab="reply">Reply &amp; Send</button>
+    <button data-tab="create">Create Document</button>
+    <button data-tab="contacts">Contacts (People)</button>
+    <button data-tab="contracts-files">Contracts (Files)</button>
+    <button data-tab="memory">Memory</button>
+    <button data-tab="settings">Settings</button>
+  </nav>
+
+  <main>
+    <!-- INBOX -->
+    <section id="tab-inbox">
+      <h2>Inbox &amp; Triage</h2>
+      <p class="desc">Fetch and classify emails into URGENT / ACTION / FYI / ARCHIVE.</p>
+      <div class="card">
+        <div class="row">
+          <button class="btn" onclick="loadInbox()">Load inbox</button>
+          <button class="btn secondary" onclick="sendUrgentTelegram(true)" title="Send a Telegram alert for every URGENT email currently shown">🔔 URGENT → Telegram</button>
+          <label class="toggle"><input type="checkbox" id="tgAuto" checked style="width:auto" /> Auto-alert new URGENT</label>
+          <span id="inboxStatus" class="spinner"></span>
+        </div>
+        <span id="tgStatus" class="cp-meta"></span>
+      </div>
+      <div class="card"><table id="inboxTable"><tbody></tbody></table></div>
+    </section>
+
+    <!-- DIGEST -->
+    <section id="tab-digest" class="hidden">
+      <h2>Morning Digest</h2>
+      <p class="desc">Grouped summary; URGENT/ACTION get one-line LLM summaries (needs API key).</p>
+      <div class="card">
+        <button class="btn" onclick="loadDigest()">Generate digest</button>
+        <button class="btn secondary" onclick="toggleDigestRaw()" id="digestRawBtn" style="display:none">Show plain text</button>
+        <span id="digestStatus" class="spinner"></span>
+      </div>
+      <div id="digestRich"><div class="card">No digest yet.</div></div>
+      <div class="card" id="digestRawWrap" style="display:none"><pre id="digestOut"></pre></div>
+    </section>
+
+    <!-- REPLY -->
+    <section id="tab-reply" class="hidden">
+      <h2>Reply &amp; Send</h2>
+      <p class="desc">Draft a reply, review it, then send through the four guardrails. The Send click is the mandatory human confirmation.</p>
+      <div class="card">
+        <label>To</label><input id="r_to" placeholder="architect@example.com" />
+        <label>Original subject</label><input id="r_subject" placeholder="RFI-047: Rebar spacing" />
+        <label>Incoming email summary (1 sentence)</label>
+        <div id="r_summary" style="background:#f1f5f9;border:1px solid #e2e8f0;border-radius:8px;padding:10px 12px;color:#334155;font-size:14px;min-height:20px">Open an email from the Inbox with “Reply” to see its summary here.</div>
+        <label style="margin-top:12px;display:block">Your short answer</label>
+        <p class="desc" style="margin:2px 0 6px">Write a few words in plain language. The LLM turns it into a professional reply using the email context.</p>
+        <textarea id="r_intent" placeholder="e.g. Approved. We can start Monday. Pour is pushed to Friday due to rain." style="min-height:80px"></textarea>
+        <label style="margin-top:12px;display:block">Sender's original email (context)</label>
+        <textarea id="r_body" placeholder="The original email you are replying to..." style="margin-top:6px" oninput="loadReplySummaryDebounced()"></textarea>
+        <div class="row" style="margin-top:12px">
+          <button class="btn" onclick="draftReply()">Draft professional reply</button>
+          <span id="replyStatus" class="spinner"></span>
+        </div>
+      </div>
+      <div class="card">
+        <label>Draft (editable before sending)</label>
+        <textarea id="r_draft" style="min-height:180px"></textarea>
+        <div class="row" style="margin-top:12px;align-items:center">
+          <label style="margin:0">Attachments</label>
+          <button class="btn secondary" onclick="loadAttachments()" title="Refresh saved documents">↻ Refresh</button>
+          <span class="cp-meta" id="r_attachCount">No documents selected.</span>
+        </div>
+        <p class="desc" style="margin:4px 0">Pick from documents you generated and saved (project/outputs/). Use "Save" in Create Document to add files here.</p>
+        <div class="card" id="r_attachList" style="max-height:160px;overflow:auto;background:#f8fafc">Loading...</div>
+        <div class="row" style="margin-top:12px">
+          <label class="toggle"><input type="checkbox" id="dryRun" checked style="width:auto" /> Dry run (do not actually send)</label>
+          <button class="btn" onclick="sendReply()">Review &amp; send</button>
+          <span id="sendStatus" class="spinner"></span>
+        </div>
+        <div id="sendResult"></div>
+      </div>
+    </section>
+
+    <!-- CREATE DOCUMENT (RFI / Submittal / Delay) -->
+    <section id="tab-create" class="hidden">
+      <h2>Create Document</h2>
+      <p class="desc">Pick a document type, fill the fields, then Generate. Save to Word/PDF or Send with attachments (requires ANTHROPIC_API_KEY).</p>
+      <div class="card">
+        <label>Document type</label>
+        <select id="doc_kind" onchange="switchDocKind()" style="max-width:320px">
+          <option value="rfi">RFI — Request for Information</option>
+          <option value="submittal">Submittal Transmittal</option>
+          <option value="delay">Delay Notice</option>
+          <option value="daily">Daily Report</option>
+        </select>
+
+        <!-- RFI fields -->
+        <div class="doc-fields" id="fields-rfi" style="margin-top:14px">
+          <div class="grid2">
+            <div><label>Project name</label><input id="rfi_project" value="Riverside Commercial Tower" /></div>
+            <div><label>Affected trade</label><input id="rfi_trade" value="Concrete / reinforcing steel" /></div>
+            <div><label>Drawing reference</label><input id="rfi_drawing" value="S-204" /></div>
+            <div><label>Spec reference</label><input id="rfi_spec" value="Section 03 21 00" /></div>
+            <div><label>Activity start date</label><input id="rfi_start" value="2026-06-15" /></div>
+            <div><label>Response deadline</label><input id="rfi_deadline" value="2026-06-11" /></div>
+          </div>
+          <label>Issue</label>
+          <textarea id="rfi_issue">Rebar spacing on the structural drawing conflicts with the minimum clear spacing required by the specification at the pile cap.</textarea>
+          <label>Suggested resolution</label>
+          <textarea id="rfi_resolution">Adopt the larger spacing from the specification to maintain code-required cover.</textarea>
+        </div>
+
+        <!-- Submittal fields -->
+        <div class="doc-fields hidden" id="fields-submittal" style="margin-top:14px">
+          <div class="grid2">
+            <div><label>Project name</label><input id="sub_project" value="Riverside Commercial Tower" /></div>
+            <div><label>Submittal no.</label><input id="sub_no" value="05120-001" /></div>
+            <div><label>Revision</label><input id="sub_rev" value="0" /></div>
+            <div><label>Spec section</label><input id="sub_spec" value="05 12 00" /></div>
+            <div><label>Supplier</label><input id="sub_supplier" value="Acme Steel Fabricators" /></div>
+            <div><label>Action requested</label><input id="sub_action" value="Review and approval" /></div>
+          </div>
+          <label>Description</label>
+          <textarea id="sub_desc">Structural steel shop drawings for Level 3 framing.</textarea>
+          <div class="grid2">
+            <div><label>Copies enclosed</label><input id="sub_copies" value="3 sets of shop drawings" /></div>
+            <div><label>Certifications</label><input id="sub_certs" value="Mill certs (ASTM A992)" /></div>
+          </div>
+          <label>Notes</label><textarea id="sub_notes">Approval required before fabrication release.</textarea>
+        </div>
+
+        <!-- Delay fields -->
+        <div class="doc-fields hidden" id="fields-delay" style="margin-top:14px">
+          <div class="card" style="margin-bottom:12px">
+            <label style="margin:0">Pull from contract</label>
+            <div class="row" style="margin-top:6px">
+              <select id="del_contract_file" style="flex:1"><option value="">— select an uploaded contract —</option></select>
+              <button class="btn secondary" onclick="loadDelayContracts()" title="Refresh list">↻</button>
+              <button class="btn" onclick="delayExtractFromContract()">Extract fields</button>
+              <span id="delExtractStatus" class="spinner"></span>
+            </div>
+            <p class="desc" style="margin:6px 0 0">Reads a contract from the Contracts (Files) tab and auto-fills project, contract no. and the governing section below.</p>
+          </div>
+          <div class="grid2">
+            <div><label>Project name</label><input id="del_project" value="Riverside Commercial Tower" /></div>
+            <div><label>Contract no.</label><input id="del_contract" value="CN-2026-014" /></div>
+            <div><label>Contract section</label><input id="del_section" value="8.3 (Delays)" /></div>
+            <div><label>Days requested</label><input id="del_days" value="5" /></div>
+            <div><label>Start date</label><input id="del_start" value="2026-05-18" /></div>
+            <div><label>End date</label><input id="del_end" value="2026-05-22" /></div>
+          </div>
+          <label>Affected activities (comma separated)</label>
+          <input id="del_activities" value="A-1200, A-1210" />
+          <label>Supporting daily data</label>
+          <textarea id="del_data">0.6 in. rainfall recorded daily; site inaccessible for earthwork.</textarea>
+        </div>
+
+        <!-- Daily Report module -->
+        <div class="doc-fields hidden" id="fields-daily" style="margin-top:14px">
+          <div class="row">
+            <button class="btn" id="dr_tab_new" onclick="drNewReport()">+ New Report</button>
+            <button class="btn secondary" id="dr_tab_past" onclick="drShowView('past')">📋 Past Reports</button>
+            <span id="drStatus" class="spinner"></span>
+          </div>
+
+          <!-- VIEW 1: NEW REPORT -->
+          <div id="dr-view-new" style="margin-top:12px">
+            <div id="dr_banner" class="hidden" style="background:#1c2a12;border:1px solid var(--fyi);color:#cfe9b0;padding:8px 12px;border-radius:8px;margin-bottom:10px"></div>
+            <div class="grid2">
+              <div><label>Date</label><input type="date" id="dr_date" onchange="drDateChange()" /></div>
+              <div><label>Report No</label><input id="dr_no" readonly /></div>
+              <div><label>Project</label><input id="dr_project" /></div>
+              <div><label>Prepared By</label><input id="dr_prepared" /></div>
+            </div>
+
+            <div class="card" style="margin-top:10px">
+              <div class="row">
+                <label style="margin:0">Weather</label>
+                <button class="btn secondary" onclick="drFetchWeather()">Fetch Weather</button>
+                <span id="dr_weather_badge" class="badge b-FYI hidden">Auto-fetched</span>
+                <span id="dr_weather_note" class="cp-meta"></span>
+              </div>
+              <div class="grid2" style="margin-top:8px">
+                <div><label>Morning</label><input id="dr_wx_am" /></div>
+                <div><label>Afternoon</label><input id="dr_wx_pm" /></div>
+              </div>
+            </div>
+
+            <div class="card" style="margin-top:10px">
+              <div class="row">
+                <label style="margin:0">Source Files</label>
+                <input type="file" id="dr_file" multiple accept=".txt,.pdf,.docx,.eml,.xlsx,.xlsm,.csv" style="max-width:280px" />
+                <button class="btn secondary" onclick="drUpload()">Upload selected</button>
+                <button class="btn hidden" id="dr_extract_btn" onclick="drExtract()">Extract Fields from Files</button>
+                <span id="dr_files_note" class="cp-meta">0 files loaded</span>
+              </div>
+              <div id="dr_drop"
+                   style="margin-top:10px;padding:16px;border:1.5px dashed var(--border);border-radius:8px;text-align:center;color:var(--muted);cursor:pointer"
+                   onclick="document.getElementById('dr_file').click()"
+                   ondragover="drDragOver(event)" ondragleave="drDragLeave(event)" ondrop="drDrop(event)">
+                Bulk upload — drag &amp; drop multiple files here (.txt .pdf .docx .eml .xlsx .csv), or click to choose
+              </div>
+              <table id="dr_files_table" style="margin-top:8px"><tbody></tbody></table>
+            </div>
+
+            <label>Manpower</label><textarea id="dr_manpower" style="min-height:80px"></textarea>
+            <label>Equipment</label><textarea id="dr_equipment" style="min-height:80px"></textarea>
+            <label>Work Performed</label><textarea id="dr_work" style="min-height:120px"></textarea>
+            <label>Delays / Issues</label><textarea id="dr_delays" style="min-height:80px"></textarea>
+            <label>Safety Observations</label><textarea id="dr_safety" style="min-height:80px"></textarea>
+            <label>Visitors</label><textarea id="dr_visitors" style="min-height:50px"></textarea>
+
+            <div class="row" style="margin-top:14px">
+              <button class="btn" onclick="drGenerate()">Generate Report</button>
+              <button class="btn secondary" onclick="drSaveDraft()">Save Draft</button>
+              <div class="dropdown">
+                <button class="btn secondary" onclick="toggleMenu(event, this)">Save as ▾</button>
+                <div class="menu">
+                  <a onclick="drSaveFiles('xlsx')">Save as Excel (.xlsx)</a>
+                  <a onclick="drSaveFiles('docx')">Save as Word</a>
+                  <a onclick="drSaveFiles('pdf')">Save as PDF</a>
+                  <a onclick="drSaveFiles('both')">Save as Both (Word + PDF)</a>
+                </div>
+              </div>
+              <button class="btn secondary" onclick="drOpenSend()">Send</button>
+              <button class="btn secondary" onclick="drFinalize()">Finalize Report</button>
+            </div>
+            <div class="card" style="margin-top:10px"><pre id="dr_out">No report generated yet.</pre></div>
+          </div>
+
+          <!-- VIEW 2: PAST REPORTS -->
+          <div id="dr-view-past" class="hidden" style="margin-top:12px">
+            <div class="row">
+              <input id="dr_filter" placeholder="Filter by date or status..." oninput="drRenderList()" style="max-width:280px" />
+              <button class="btn secondary" onclick="drLoadList()">Reload</button>
+            </div>
+            <div class="grid2" style="margin-top:10px;align-items:start">
+              <div class="card"><div id="dr_list">Loading...</div></div>
+              <div class="card"><div id="dr_detail" class="cp-meta">Select a report from the list.</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:14px" id="std-doc-actions">
+          <button class="btn" onclick="genDocCurrent()">Generate document</button>
+          <div class="dropdown">
+            <button class="btn secondary" onclick="toggleMenu(event, this)">Save ▾</button>
+            <div class="menu">
+              <a onclick="saveDocCurrent('docx')">Save as Word (.docx)</a>
+              <a onclick="saveDocCurrent('pdf')">Save as PDF</a>
+              <a onclick="saveDocCurrent('both')">Save as Both</a>
+            </div>
+          </div>
+          <div class="dropdown">
+            <button class="btn secondary" onclick="toggleMenu(event, this)">Send ▾</button>
+            <div class="menu">
+              <a onclick="openSendCurrent('docx')">Send as Word</a>
+              <a onclick="openSendCurrent('pdf')">Send as PDF</a>
+              <a onclick="openSendCurrent('both')">Send as Both</a>
+            </div>
+          </div>
+          <span id="docStatus" class="spinner"></span>
+        </div>
+      </div>
+      <div class="card" id="std-doc-out"><pre id="docOut">No document yet.</pre></div>
+    </section>
+
+    <!-- CONTACTS -->
+    <section id="tab-contacts" class="hidden">
+      <h2>Contacts</h2>
+      <p class="desc">People who email you are saved here automatically. Classify each one: <b style="color:var(--urgent)">Urgent</b> = their emails are always URGENT, <b style="color:var(--action)">VIP</b> = at least ACTION, Normal = no effect. Changes apply to triage immediately after saving.</p>
+      <div class="card">
+        <div class="row">
+          <input id="ct_name" placeholder="Name" style="max-width:180px" />
+          <input id="ct_email" placeholder="email@example.com" style="max-width:240px" />
+          <input id="ct_role" placeholder="Role (e.g. Architect)" style="max-width:170px" />
+          <select id="ct_importance" style="max-width:130px">
+            <option value="normal">Normal</option>
+            <option value="vip">VIP</option>
+            <option value="urgent">Urgent</option>
+          </select>
+          <label class="toggle"><input type="checkbox" id="ct_cc" style="width:auto" /> CC always</label>
+          <button class="btn" onclick="addContact()">+ Add contact</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="row" style="margin-bottom:10px">
+          <button class="btn" onclick="saveContacts()">Save all changes</button>
+          <button class="btn secondary" onclick="loadContacts()">Reload</button>
+          <span id="ctStatus" class="spinner"></span>
+        </div>
+        <table id="contactsTable"><tbody></tbody></table>
+      </div>
+    </section>
+
+    <!-- CONTRACTS (document files) -->
+    <section id="tab-contracts-files" class="hidden">
+      <h2>Contracts</h2>
+      <p class="desc">Upload and manage contract documents. Files are stored on the server in <code>project/contracts/</code>.</p>
+      <div class="card">
+        <div class="row">
+          <input type="file" id="cf_file" style="max-width:360px" />
+          <button class="btn" onclick="uploadContract()">Upload</button>
+          <button class="btn secondary" onclick="loadContractFiles()">Reload</button>
+          <span id="cfStatus" class="spinner"></span>
+        </div>
+      </div>
+      <div class="card">
+        <table id="contractsFilesTable"><tbody></tbody></table>
+      </div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section id="tab-settings" class="hidden">
+      <h2>Sender Profile (signature)</h2>
+      <p class="desc">The selected profile's details are inserted automatically into every generated draft (RFI, submittal, delay notice, reply) as the sign-off / "Prepared by" block.</p>
+      <div class="card">
+        <label>Active profile</label>
+        <div class="row">
+          <select id="prof_select" onchange="onProfileSelect()" style="max-width:320px"></select>
+          <button class="btn secondary" onclick="addProfile()">+ Add profile</button>
+          <button class="btn secondary" onclick="deleteProfile()">Delete</button>
+        </div>
+        <div class="grid2" style="margin-top:8px">
+          <div><label>First name</label><input id="prof_first" placeholder="Jordan" /></div>
+          <div><label>Last name</label><input id="prof_last" placeholder="Rivera" /></div>
+          <div><label>Title</label><input id="prof_title" placeholder="Project Manager" /></div>
+          <div><label>Company</label><input id="prof_company" placeholder="Meridian Construction Co." /></div>
+          <div><label>Phone</label><input id="prof_phone" placeholder="+1 (555) 010-2030" /></div>
+          <div><label>Email</label><input id="prof_email" placeholder="jordan.rivera@example.com" /></div>
+          <div><label>Default project name</label><input id="prof_project" placeholder="Riverside Commercial Tower" /></div>
+          <div>
+            <label>Project location (city)</label>
+            <select id="prof_city" onchange="onCityChange()"></select>
+          </div>
+        </div>
+        <p class="desc" style="margin-top:6px">The default project name is auto-filled into every Create Document form. The selected city sets the site coordinates used for Daily Report auto-weather <span id="prof_coords" class="cp-meta"></span></p>
+        <div class="row" style="margin-top:12px">
+          <button class="btn" onclick="saveProfiles()">Save profile</button>
+          <span id="profStatus" class="spinner"></span>
+        </div>
+        <label style="margin-top:14px">Signature preview</label>
+        <pre id="prof_preview" style="max-height:160px">No profile selected.</pre>
+      </div>
+
+      <h2>Triage Settings</h2>
+      <p class="desc">Edit the keywords that drive triage. Changes apply immediately to the running server — no restart needed. One keyword per line; matching is case-insensitive whole-word (Turkish terms allowed).</p>
+      <div class="card">
+        <div class="grid2">
+          <div>
+            <label style="color:var(--urgent)">URGENT keywords</label>
+            <textarea id="cfg_urgent" style="min-height:160px"></textarea>
+          </div>
+          <div>
+            <label style="color:var(--action)">ACTION keywords</label>
+            <textarea id="cfg_action" style="min-height:160px"></textarea>
+          </div>
+          <div>
+            <label style="color:var(--fyi)">FYI keywords</label>
+            <textarea id="cfg_fyi" style="min-height:160px"></textarea>
+          </div>
+          <div>
+            <label>VIP senders (elevate to at least ACTION)</label>
+            <textarea id="cfg_vip" style="min-height:160px"></textarea>
+          </div>
+        </div>
+        <div class="row" style="margin-top:14px">
+          <button class="btn" onclick="saveTriageConfig()">Save &amp; apply</button>
+          <button class="btn secondary" onclick="loadTriageConfig()">Reload</button>
+          <button class="btn secondary" onclick="resetTriageConfig()">Reset to defaults</button>
+          <span id="cfgStatus" class="spinner"></span>
+        </div>
+        <p class="desc" style="margin-top:12px">Tip: after saving, go to <span class="link" onclick="document.querySelector('nav button[data-tab=&quot;inbox&quot;]').click()">Inbox &amp; Triage</span> and reload to see the new classification.</p>
+      </div>
+    </section>
+
+    <!-- MEMORY -->
+    <section id="tab-memory" class="hidden">
+      <h2>Memory</h2>
+      <p class="desc">Persistent cross-session state from memory.json.</p>
+      <div class="card">
+        <button class="btn" onclick="loadMemory()">Refresh stats</button>
+        <span id="memStatus" class="spinner"></span>
+        <pre id="memOut" style="margin-top:14px">No data loaded.</pre>
+      </div>
+
+      <h2 style="margin-top:18px">Saved Documents</h2>
+      <p class="desc">Every document you generate and save (RFIs, submittals, delay notices and daily reports). They can be attached to emails from Reply &amp; Send.</p>
+      <div class="card">
+        <div class="row" style="margin-bottom:10px;align-items:center">
+          <label style="margin:0">Filter by type</label>
+          <select id="memDocFilter" onchange="renderMemDocs()" style="max-width:200px">
+            <option value="">All</option>
+            <option value="RFI">RFI</option>
+            <option value="Submittal">Submittal</option>
+            <option value="Delay Notice">Delay Notice</option>
+            <option value="Daily Report">Daily Report</option>
+          </select>
+          <span class="cp-meta" id="memDocCount"></span>
+        </div>
+        <table id="memDocsTable"><tbody></tbody></table>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- SEND DOCUMENT DIALOG -->
+<div id="sendModal" class="modal-overlay hidden">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Send Document</h3>
+      <span id="sd_dryBanner" class="badge b-ACTION">DRY RUN</span>
+      <a class="link" onclick="closeSendDialog()" style="margin-left:auto;font-size:16px">✕</a>
+    </div>
+    <p class="desc" id="sd_docLabel" style="margin-bottom:10px"></p>
+
+    <label>To</label>
+    <textarea id="sd_to" style="min-height:42px" placeholder="email@firm.com, ..."></textarea>
+    <div class="cp-meta" style="font-size:11px;margin-top:4px">Contacts (click + Add):</div>
+    <div id="sd_contacts" class="contact-picker"></div>
+
+    <div class="grid2">
+      <div><label>CC</label><input id="sd_cc" placeholder="comma-separated" /></div>
+      <div><label>BCC (optional)</label><input id="sd_bcc" placeholder="comma-separated" /></div>
+    </div>
+
+    <label>Subject</label>
+    <input id="sd_subject" />
+
+    <label>Body</label>
+    <textarea id="sd_body" style="min-height:120px"></textarea>
+
+    <label>Attachment format</label>
+    <div class="row">
+      <label class="toggle"><input type="radio" name="sd_fmt" value="docx" style="width:auto" /> Word (.docx)</label>
+      <label class="toggle"><input type="radio" name="sd_fmt" value="pdf" style="width:auto" /> PDF</label>
+      <label class="toggle"><input type="radio" name="sd_fmt" value="both" checked style="width:auto" /> Both</label>
+    </div>
+    <p class="desc" style="margin:8px 0 4px">Files will be saved to project/outputs/ before sending.</p>
+    <label class="toggle"><input type="checkbox" id="sd_dry" checked style="width:auto" onchange="updateDryBanner()" /> Dry run (do not actually send)</label>
+
+    <div id="sd_result" style="margin-top:8px"></div>
+    <div class="row" style="margin-top:14px;justify-content:flex-end">
+      <button class="btn secondary" onclick="closeSendDialog()">Cancel</button>
+      <button class="btn" id="sd_sendBtn" onclick="confirmSend()">Send</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let lastEmails = [];
+
+async function api(path, method = "GET", body = null) {
+  const opts = { method, headers: { "Content-Type": "application/json" } };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(path, opts);
+  return res.json();
+}
+
+// Tab switching
+document.querySelectorAll("nav button").forEach((b) => {
+  b.onclick = () => {
+    document.querySelectorAll("nav button").forEach((x) => x.classList.remove("active"));
+    b.classList.add("active");
+    document.querySelectorAll("main > section").forEach((s) => s.classList.add("hidden"));
+    document.getElementById("tab-" + b.dataset.tab).classList.remove("hidden");
+    // Refresh data that may have changed elsewhere (e.g. auto-captured senders).
+    if (b.dataset.tab === "create") {
+      applyDefaultProject();
+      // If Daily Report is the selected type, make sure a report is initialised
+      // (the dropdown's onchange does not fire when the tab is merely shown).
+      if (currentDocKind() === "daily") switchDocKind();
+    }
+    if (b.dataset.tab === "reply") loadAttachments();
+    if (b.dataset.tab === "contacts") loadContacts();
+    if (b.dataset.tab === "contracts-files") loadContractFiles();
+    if (b.dataset.tab === "memory") loadMemory();
+  };
+});
+
+async function loadStatus() {
+  const s = await api("/api/status");
+  const map = { anthropic: "Claude API", email: "IMAP", smtp: "SMTP", telegram: "Telegram" };
+  document.getElementById("status").innerHTML = Object.keys(map)
+    .map((k) => `<span class="chip ${s[k] ? "on" : "off"}">${map[k]}: ${s[k] ? "ready" : "off"}</span>`)
+    .join("");
+}
+
+const CATEGORY_ORDER = { URGENT: 0, ACTION: 1, FYI: 2, ARCHIVE: 3 };
+
+async function loadInbox() {
+  setStatus("inboxStatus", "Loading...");
+  const data = await api("/api/inbox?test=false");
+  // Most important first: URGENT, then ACTION, FYI, ARCHIVE.
+  lastEmails = (data.emails || []).sort(
+    (a, b) =>
+      (CATEGORY_ORDER[a.triage_category] ?? 9) -
+      (CATEGORY_ORDER[b.triage_category] ?? 9)
+  );
+  const rows = lastEmails
+    .map((e, i) => {
+      const isArchive = e.triage_category === "ARCHIVE";
+      const summaryCell = isArchive
+        ? '<span style="color:var(--archive)">—</span>'
+        : `<span id="sum-${i}" class="spinner">Summarizing…</span>`;
+      return `<tr>
+        <td><span class="badge b-${e.triage_category}">${e.triage_category}</span></td>
+        <td>${esc(e.sender)}</td>
+        <td>${esc(e.subject)}<br><span style="color:var(--muted);font-size:12px">${esc(e.preview || "")}</span></td>
+        <td style="min-width:240px">${summaryCell}</td>
+        <td><a class="link" onclick='useForReply(${JSON.stringify(e).replace(/'/g, "&#39;")})'>Reply</a></td>
+      </tr>`;
+    })
+    .join("");
+  document.getElementById("inboxTable").innerHTML =
+    `<thead><tr><th>Triage</th><th>From</th><th>Subject / Preview</th><th>AI Summary (2 sentences)</th><th></th></tr></thead><tbody>${rows}</tbody>`;
+  setStatus("inboxStatus", `${data.count} emails loaded.`);
+  await summarizeInbox();
+  if (document.getElementById("tgAuto") && document.getElementById("tgAuto").checked) {
+    sendUrgentTelegram(false);
+  }
+}
+
+async function sendUrgentTelegram(force) {
+  const urgent = lastEmails.filter((e) => e.triage_category === "URGENT");
+  if (!urgent.length) {
+    if (force) setStatus("tgStatus", "No URGENT emails to send.");
+    return;
+  }
+  const payload = urgent.map((e) => ({
+    sender: e.sender, subject: e.subject, date: e.date,
+    preview: e.preview, summary: e.summary || "",
+    triage_category: e.triage_category,
+  }));
+  setStatus("tgStatus", force ? "Sending URGENT alerts..." : "Checking new URGENT...");
+  const data = await api("/api/telegram-urgent", "POST", { emails: payload, force });
+  setStatus("tgStatus", "🔔 " + (data.message || "Done."));
+}
+
+async function summarizeInbox() {
+  // Fetch a 2-sentence LLM summary for each non-archive email, in parallel.
+  await Promise.all(
+    lastEmails.map(async (e, i) => {
+      if (e.triage_category === "ARCHIVE") return;
+      const cell = document.getElementById("sum-" + i);
+      if (!cell) return;
+      try {
+        const data = await api("/api/summarize", "POST", {
+          body: e.body || e.preview || e.subject, sentences: 2,
+        });
+        cell.className = "";
+        cell.textContent = data.summary || data.error || "—";
+        cell.style.fontSize = "12.5px";
+        e.summary = data.summary || "";
+      } catch (err) {
+        cell.className = "err";
+        cell.textContent = "Summary failed.";
+      }
+    })
+  );
+}
+
+function useForReply(e) {
+  document.querySelector('nav button[data-tab="reply"]').click();
+  const addr = (e.sender.match(/<(.+?)>/) || [null, e.sender])[1];
+  document.getElementById("r_to").value = addr;
+  document.getElementById("r_subject").value = e.subject;
+  document.getElementById("r_body").value = e.body || e.preview || "";
+  document.getElementById("r_intent").value = "";
+  document.getElementById("r_draft").value = "";
+  loadReplySummary();
+}
+
+async function loadReplySummary() {
+  const el = document.getElementById("r_summary");
+  const body = val("r_body");
+  if (!body) { el.textContent = "No email content to summarize."; return; }
+  el.textContent = "Summarizing…";
+  try {
+    const data = await api("/api/summarize", "POST", { body, sentences: 1 });
+    el.textContent = data.summary || data.error || "(no summary)";
+  } catch (err) {
+    el.textContent = "(summary unavailable)";
+  }
+}
+
+let _replySummaryTimer = null;
+function loadReplySummaryDebounced() {
+  clearTimeout(_replySummaryTimer);
+  _replySummaryTimer = setTimeout(loadReplySummary, 900);
+}
+
+async function loadDigest() {
+  setStatus("digestStatus", "Generating (may call the LLM)...");
+  const resp = await api("/api/digest", "POST", { emails: lastEmails });
+  document.getElementById("digestOut").textContent = resp.digest || resp.error || "No output.";
+  if (resp.data) {
+    document.getElementById("digestRich").innerHTML = renderDigest(resp.data);
+    document.getElementById("digestRawBtn").style.display = "inline-block";
+    updateTodoProgress();
+  } else {
+    document.getElementById("digestRich").innerHTML =
+      `<div class="card err">${esc(resp.error || "No output.")}</div>`;
+  }
+  setStatus("digestStatus", "Done.");
+}
+
+function toggleDigestRaw() {
+  const wrap = document.getElementById("digestRawWrap");
+  const btn = document.getElementById("digestRawBtn");
+  const showing = wrap.style.display !== "none";
+  wrap.style.display = showing ? "none" : "block";
+  btn.textContent = showing ? "Show plain text" : "Hide plain text";
+}
+
+function todoKey(subject) {
+  return "todo:" + (subject || "").trim().toLowerCase();
+}
+function isTodoDone(key) {
+  try { return localStorage.getItem(key) === "1"; } catch (e) { return false; }
+}
+function onTodoToggle(box) {
+  const row = box.closest(".dg-action");
+  const key = row.getAttribute("data-key");
+  try { localStorage.setItem(key, box.checked ? "1" : "0"); } catch (e) {}
+  row.classList.toggle("done", box.checked);
+  updateTodoProgress();
+}
+function updateTodoProgress() {
+  const boxes = document.querySelectorAll("#digestRich .todo-box");
+  const el = document.getElementById("todoProgress");
+  if (!el) return;
+  const total = boxes.length;
+  const done = [...boxes].filter((b) => b.checked).length;
+  el.textContent = total ? `(${done}/${total} done)` : "";
+}
+
+function impBadge(imp) {
+  if (imp === "urgent") return ` <span class="badge b-URGENT">URGENT CONTACT</span>`;
+  if (imp === "vip") return ` <span class="badge b-ACTION">VIP</span>`;
+  return "";
+}
+
+function renderDigest(d) {
+  const c = d.counts;
+  const colorMap = { URGENT: "b-URGENT", ACTION: "b-ACTION", FYI: "b-FYI", ARCHIVE: "b-ARCHIVE" };
+  let html = `<div class="card">
+    <div class="dg-head">
+      <h3>Morning Digest</h3>
+      <span class="meta">${esc(d.date)} at ${esc(d.time)} · ${d.total} emails</span>
+    </div>
+    <div class="dg-counts">
+      ${["URGENT","ACTION","FYI","ARCHIVE"].map(k =>
+        `<span class="dg-count ${colorMap[k]}">${k} ${c[k]}</span>`).join("")}
+    </div>`;
+
+  // Flagged VIP / urgent contacts
+  if (d.flagged_contacts && d.flagged_contacts.length) {
+    html += `<div class="dg-section sec-FLAG"><h4>⚑ VIP / Urgent contacts in this batch</h4>`;
+    html += d.flagged_contacts.map(ct =>
+      `<div class="dg-flag">${impBadge(ct.importance)}
+        <span><b>${esc(ct.name)}</b> <span class="from">&lt;${esc(ct.email)}&gt;</span></span></div>`
+    ).join("");
+    html += `</div>`;
+  }
+
+  // To-do list (interactive, checkable, persisted in localStorage)
+  html += `<div class="dg-section sec-ACTIONS">
+    <h4>✓ To-do list <span id="todoProgress" class="meta"></span></h4>`;
+  if (d.actions.length) {
+    html += d.actions.map((a, i) => {
+      const key = todoKey(a.subject);
+      const done = isTodoDone(key);
+      return `<label class="dg-action todo ${done ? "done" : ""}" data-key="${esc(key)}">
+        <input type="checkbox" class="todo-box" ${done ? "checked" : ""}
+          onchange="onTodoToggle(this)" />
+        <span class="todo-body">
+          <span class="badge ${colorMap[a.category]}">${a.category}</span>
+          <b>${esc(a.subject)}</b>
+          <span class="from">— ${esc(a.name)}</span>${impBadge(a.importance)}
+          <div class="sum">${esc(a.summary)}</div>
+          ${a.suggested_action ? `<div class="suggest"><span class="suggest-label">💡 Recommended:</span> ${esc(a.suggested_action)}</div>` : ""}
+        </span>
+      </label>`;
+    }).join("");
+  } else {
+    html += `<div class="dg-empty">No to-do items. 🎉</div>`;
+  }
+  html += `</div>`;
+
+  // URGENT / ACTION detail sections
+  ["URGENT", "ACTION"].forEach(cat => {
+    const items = d.categories[cat] || [];
+    html += `<div class="dg-section sec-${cat}"><h4>${cat} (${items.length})</h4>`;
+    if (items.length) {
+      html += items.map(it =>
+        `<div class="dg-item">
+          <span class="subj">${esc(it.subject)}</span>
+          <span class="from">${esc(it.name)}</span>${impBadge(it.importance)}
+          <div class="sum">${esc(it.summary)}</div>
+          ${it.suggested_action ? `<div class="suggest"><span class="suggest-label">💡 Recommended:</span> ${esc(it.suggested_action)}</div>` : ""}
+        </div>`
+      ).join("");
+    } else {
+      html += `<div class="dg-empty">None.</div>`;
+    }
+    html += `</div>`;
+  });
+
+  // FYI (subjects only)
+  const fyi = d.categories.FYI || [];
+  html += `<div class="dg-section sec-FYI"><h4>FYI (${fyi.length})</h4>`;
+  html += fyi.length
+    ? fyi.map(it => `<div class="dg-item"><span class="subj">${esc(it.subject)}</span>
+        <span class="from">${esc(it.name)}</span>${impBadge(it.importance)}</div>`).join("")
+    : `<div class="dg-empty">None.</div>`;
+  html += `</div>`;
+
+  html += `<div class="dg-empty" style="margin-top:14px">${c.ARCHIVE} archived email(s) skipped · AI summaries are drafts — always read the original before acting.</div>`;
+  html += `</div>`;
+  return html;
+}
+
+async function draftReply() {
+  if (!val("r_intent").trim()) {
+    setStatus("replyStatus", "Write your short answer first.");
+    return;
+  }
+  setStatus("replyStatus", "Drafting (calls the LLM)...");
+  const data = await api("/api/draft-reply", "POST", {
+    subject: val("r_subject"), body: val("r_body"), intent: val("r_intent"),
+  });
+  document.getElementById("r_draft").value = data.draft || data.error || "";
+  setStatus("replyStatus", "Draft ready — review before sending.");
+}
+
+// --- Attachments (saved documents) ----------------------------------------
+async function loadAttachments() {
+  const box = document.getElementById("r_attachList");
+  if (!box) return;
+  box.textContent = "Loading...";
+  const data = await api("/api/outputs");
+  const files = data.files || [];
+  if (!files.length) {
+    box.innerHTML = '<span class="cp-meta">No saved documents yet. Generate one in Create Document and click Save.</span>';
+    updateAttachCount();
+    return;
+  }
+  box.innerHTML = files.map((f) =>
+    `<label class="toggle" style="display:flex;gap:8px;padding:4px 2px">
+      <input type="checkbox" class="r-attach" value="${esc(f.name)}" style="width:auto" onchange="updateAttachCount()" />
+      <span>${esc(f.name)}</span>
+      <span class="cp-meta" style="margin-left:auto">${fmtSize(f.size)} · ${esc(f.modified)}</span>
+    </label>`
+  ).join("");
+  updateAttachCount();
+}
+
+function selectedAttachments() {
+  return Array.from(document.querySelectorAll(".r-attach:checked")).map((c) => c.value);
+}
+
+function updateAttachCount() {
+  const n = selectedAttachments().length;
+  document.getElementById("r_attachCount").textContent =
+    n ? `${n} document(s) selected.` : "No documents selected.";
+}
+
+async function sendReply() {
+  const dryRun = document.getElementById("dryRun").checked;
+  setStatus("sendStatus", "Running guardrails...");
+  const data = await api("/api/send", "POST", {
+    to: val("r_to"), subject: "RE: " + val("r_subject"),
+    body: val("r_draft"), dry_run: dryRun, attachments: selectedAttachments(),
+  });
+  let html = "";
+  if (data.warnings && data.warnings.length)
+    html += data.warnings.map((w) => `<div class="warn">⚠ ${esc(w)}</div>`).join("");
+  const cls = data.sent ? "ok" : "err";
+  html += `<div class="${cls}" style="margin-top:6px">${esc(data.message || "")}</div>`;
+  document.getElementById("sendResult").innerHTML = html;
+  setStatus("sendStatus", "");
+}
+
+const DOC_CFG = {
+  rfi: { out: "docOut", status: "docStatus", body: () => rfiBody(),
+    type: "RFI", project: "rfi_project", contract: null },
+  submittal: { out: "docOut", status: "docStatus", body: () => subBody(),
+    type: "Submittal Transmittal", project: "sub_project", contract: null },
+  delay: { out: "docOut", status: "docStatus", body: () => delBody(),
+    type: "Delay Notice", project: "del_project", contract: "del_contract" },
+};
+const docState = { rfi: { text: "", files: {} }, submittal: { text: "", files: {} }, delay: { text: "", files: {} } };
+
+function currentDocKind() {
+  return document.getElementById("doc_kind").value;
+}
+
+function switchDocKind() {
+  const kind = currentDocKind();
+  document.querySelectorAll(".doc-fields").forEach((el) => el.classList.add("hidden"));
+  document.getElementById("fields-" + kind).classList.remove("hidden");
+  // The Daily Report module owns its own actions/output; hide the standard ones.
+  const isDaily = kind === "daily";
+  document.getElementById("std-doc-actions").classList.toggle("hidden", isDaily);
+  document.getElementById("std-doc-out").classList.toggle("hidden", isDaily);
+  if (isDaily) {
+    drEnsureInit();
+    return;
+  }
+  if (kind === "delay") loadDelayContracts();
+  // Show this type's previously generated output, if any.
+  document.getElementById("docOut").textContent = docState[kind].text || "No document yet.";
+  setStatus("docStatus", "");
+}
+
+function genDocCurrent() { genDoc(currentDocKind()); }
+function saveDocCurrent(fmt) { saveDoc(currentDocKind(), fmt); }
+function openSendCurrent(fmt) { openSendDialog(currentDocKind(), fmt); }
+
+async function genDoc(kind) {
+  const cfg = DOC_CFG[kind];
+  setStatus(cfg.status, "Generating (calls the LLM)...");
+  const data = await api("/api/" + kind, "POST", cfg.body());
+  const text = data.document || data.error || "No output.";
+  document.getElementById(cfg.out).textContent = text;
+  docState[kind] = { text: data.document ? text : "", files: {} };
+  setStatus(cfg.status, "Done.");
+}
+
+function docMeta(kind) {
+  const cfg = DOC_CFG[kind];
+  return {
+    doc_type: cfg.type,
+    text: docState[kind].text,
+    project_name: cfg.project ? val(cfg.project) : "",
+    contract_number: cfg.contract ? val(cfg.contract) : "",
+  };
+}
+
+// --- Save / Send dropdowns -------------------------------------------------
+function toggleMenu(event, btn) {
+  event.stopPropagation();
+  const dd = btn.parentElement;
+  const open = dd.classList.contains("open");
+  document.querySelectorAll(".dropdown.open").forEach((d) => d.classList.remove("open"));
+  if (!open) dd.classList.add("open");
+}
+document.addEventListener("click", () =>
+  document.querySelectorAll(".dropdown.open").forEach((d) => d.classList.remove("open")));
+
+async function saveDoc(kind, fmt) {
+  const cfg = DOC_CFG[kind];
+  const meta = docMeta(kind);
+  if (!meta.text) { setStatus(cfg.status, "Generate the document first."); return; }
+  setStatus(cfg.status, "Saving...");
+  const data = await api("/api/doc/save", "POST", { ...meta, format: fmt });
+  if (data.error) { setStatus(cfg.status, "Error: " + data.error); return; }
+  docState[kind].files = data.files || {};
+  const names = Object.values(data.files || {}).map((p) => p.split(/[\\/]/).pop());
+  setStatus(cfg.status, "Saved: " + names.join(", "));
+}
+
+// --- Send dialog -----------------------------------------------------------
+let currentSendKind = null;
+
+function updateDryBanner() {
+  const dry = document.getElementById("sd_dry").checked;
+  document.getElementById("sd_dryBanner").style.display = dry ? "inline-block" : "none";
+}
+
+async function openSendDialog(kind, fmt) {
+  const meta = docMeta(kind);
+  const cfg = DOC_CFG[kind];
+  if (!meta.text) { setStatus(cfg.status, "Generate the document first."); return; }
+  currentSendKind = kind;
+
+  document.getElementById("sd_docLabel").textContent =
+    `${meta.doc_type}${meta.project_name ? " · " + meta.project_name : ""}`;
+  document.getElementById("sd_to").value = "";
+  document.getElementById("sd_cc").value = "";
+  document.getElementById("sd_bcc").value = "";
+  document.getElementById("sd_subject").value = "";
+  document.getElementById("sd_body").value = "Drafting email body...";
+  document.getElementById("sd_result").innerHTML = "";
+  const radio = document.querySelector(`input[name=sd_fmt][value="${fmt}"]`);
+  if (radio) radio.checked = true;
+  document.getElementById("sd_dry").checked = true;
+  updateDryBanner();
+  document.getElementById("sendModal").classList.remove("hidden");
+
+  renderContactPicker();
+
+  // Draft subject + body in the background so the dialog opens instantly.
+  api("/api/doc/draft-body", "POST", meta).then((data) => {
+    if (currentSendKind !== kind) return;
+    document.getElementById("sd_subject").value = data.subject || "";
+    document.getElementById("sd_body").value = data.body || "";
+  });
+}
+
+function closeSendDialog() {
+  document.getElementById("sendModal").classList.add("hidden");
+  currentSendKind = null;
+}
+
+async function renderContactPicker() {
+  const box = document.getElementById("sd_contacts");
+  box.innerHTML = '<div class="cp-meta" style="padding:6px">Loading contacts...</div>';
+  const data = await api("/api/contacts");
+  const contacts = data.contacts || [];
+  // Pre-fill CC with cc_always contacts.
+  const cc = contacts.filter((c) => c.cc_always).map((c) => c.email);
+  document.getElementById("sd_cc").value = cc.join(", ");
+  if (!contacts.length) {
+    box.innerHTML = '<div class="cp-meta" style="padding:6px">No contacts yet.</div>';
+    return;
+  }
+  box.innerHTML = contacts.map((c) => {
+    const meta = [c.role, c.email].filter(Boolean).join(" · ");
+    return `<div class="cp-row">
+      <span class="cp-add" onclick="addToField('${esc(c.email)}')">+ Add</span>
+      <span>${esc(c.name || c.email)}</span>
+      <span class="cp-meta">${esc(meta)}</span>
+    </div>`;
+  }).join("");
+}
+
+function addToField(email) {
+  const el = document.getElementById("sd_to");
+  const current = el.value.split(",").map((s) => s.trim()).filter(Boolean);
+  if (!current.includes(email)) current.push(email);
+  el.value = current.join(", ");
+}
+
+const DOMAIN_TYPOS = ["gmial", "yhaoo", "outlok"];
+
+async function confirmSend() {
+  const kind = currentSendKind;
+  if (!kind) return;
+  const to = val("sd_to").trim();
+  const subject = val("sd_subject").trim();
+  const body = val("sd_body").trim();
+  const resultEl = document.getElementById("sd_result");
+
+  if (!to) { resultEl.innerHTML = '<div class="err">At least one To address is required.</div>'; return; }
+  if (!subject) { resultEl.innerHTML = '<div class="err">Subject cannot be empty.</div>'; return; }
+  if (!body) { resultEl.innerHTML = '<div class="err">Body cannot be empty.</div>'; return; }
+  const typo = DOMAIN_TYPOS.find((t) => to.toLowerCase().includes(t));
+  if (typo && !confirm(`"${typo}" looks like a typo in a recipient address. Send anyway?`)) return;
+
+  const fmt = document.querySelector("input[name=sd_fmt]:checked").value;
+  const dry = document.getElementById("sd_dry").checked;
+  const btn = document.getElementById("sd_sendBtn");
+  btn.disabled = true;
+  resultEl.innerHTML = '<div class="cp-meta">Saving files and running guardrails...</div>';
+
+  let endpoint = "/api/doc/send";
+  let payload;
+  if (kind === "daily") {
+    endpoint = "/api/report/send";
+    payload = {
+      report: dailySendCtx.report, text: dailySendCtx.text, format: fmt,
+      to, cc: val("sd_cc"), bcc: val("sd_bcc"), subject, body, dry_run: dry,
+    };
+  } else {
+    payload = {
+      ...docMeta(kind), format: fmt,
+      to, cc: val("sd_cc"), bcc: val("sd_bcc"), subject, body, dry_run: dry,
+    };
+  }
+  const data = await api(endpoint, "POST", payload);
+  btn.disabled = false;
+  const cls = data.sent ? "ok" : "err";
+  resultEl.innerHTML = `<div class="${cls}">${esc(data.message || "")}</div>`;
+  if (data.sent && !dry) setTimeout(closeSendDialog, 1200);
+}
+
+const rfiBody = () => ({
+  project_name: val("rfi_project"), drawing_ref: val("rfi_drawing"),
+  spec_ref: val("rfi_spec"), issue: val("rfi_issue"),
+  suggested_resolution: val("rfi_resolution"), affected_trade: val("rfi_trade"),
+  activity_start_date: val("rfi_start"), response_deadline: val("rfi_deadline"),
+});
+const subBody = () => ({
+  project_name: val("sub_project"), submittal_no: val("sub_no"),
+  revision: val("sub_rev"), spec_section: val("sub_spec"),
+  description: val("sub_desc"), supplier: val("sub_supplier"),
+  copies: val("sub_copies"), certs: val("sub_certs"),
+  action: val("sub_action"), notes: val("sub_notes"),
+});
+const delBody = () => ({
+  project_name: val("del_project"), contract_no: val("del_contract"),
+  contract_section: val("del_section"), start_date: val("del_start"),
+  end_date: val("del_end"), affected_activities: val("del_activities"),
+  days_requested: val("del_days"), supporting_data: val("del_data"),
+});
+
+/* ===================== DAILY REPORT MODULE ===================== */
+let drReport = null;      // current New Report dict
+let drText = "";          // generated text for current New Report
+let drInited = false;
+let drListData = [];
+let dailySendCtx = { report: null, text: "" };
+
+const DR_FIELDS = {
+  project_name: "dr_project", prepared_by: "dr_prepared",
+  weather_morning: "dr_wx_am", weather_afternoon: "dr_wx_pm",
+  manpower: "dr_manpower", equipment: "dr_equipment",
+  work_performed: "dr_work", delays_issues: "dr_delays",
+  safety_observations: "dr_safety", visitors: "dr_visitors",
+};
+
+function todayStr() { return new Date().toISOString().slice(0, 10); }
+
+function fileToB64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result).split(",").pop());
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+function drShowView(view) {
+  document.getElementById("dr-view-new").classList.toggle("hidden", view !== "new");
+  document.getElementById("dr-view-past").classList.toggle("hidden", view === "new");
+  document.getElementById("dr_tab_new").className = view === "new" ? "btn" : "btn secondary";
+  document.getElementById("dr_tab_past").className = view === "new" ? "btn secondary" : "btn";
+  if (view === "past") drLoadList();
+}
+
+// True if the current New-Report form has any content worth keeping.
+function drIsDirty() {
+  if (drText && drText.trim()) return true;
+  if (drReport && (drReport.source_files || []).length) return true;
+  return Object.values(DR_FIELDS).some((id) => (val(id) || "").trim());
+}
+
+// "+ New Report": switch to the new view and start a fresh report. Reuses the
+// current report if it is still blank; otherwise creates a brand-new one.
+async function drNewReport() {
+  drShowView("new");
+  if (!drReport) { await drEnsureInit(); return; }
+  if (drReport.status === "finalized" || drIsDirty()) {
+    if (!confirm("Start a brand-new report? The current form will be cleared (saved drafts are kept in Past Reports).")) return;
+    await drCreateFresh();
+  }
+}
+
+async function drCreateFresh() {
+  const date = val("dr_date") || todayStr();
+  setStatus("drStatus", "Creating new report...");
+  const data = await api("/api/report/init", "POST", { date, force_new: true });
+  if (data.error) { setStatus("drStatus", "Error: " + data.error); return; }
+  drReport = data.report;
+  drText = "";
+  document.getElementById("dr_out").textContent = "No report generated yet.";
+  drPopulateForm(drReport);
+  document.getElementById("dr_banner").classList.add("hidden");
+  setStatus("drStatus", "New report: " + drReport.id);
+  if (!drReport.weather_morning && !drReport.weather_afternoon) drFetchWeather(true);
+}
+
+async function drEnsureInit() {
+  if (drInited && drReport) return;
+  drInited = true;
+  if (!val("dr_date")) document.getElementById("dr_date").value = todayStr();
+  await drInitReport(val("dr_date") || todayStr());
+}
+
+// Guarantee a report exists before an action runs (init is lazy / idempotent).
+async function drRequireReport() {
+  if (!drReport) {
+    drInited = false;
+    await drEnsureInit();
+  }
+  if (!drReport) setStatus("drStatus", "Could not open a report. Check the server.");
+  return drReport;
+}
+
+async function drInitReport(date) {
+  setStatus("drStatus", "Loading report...");
+  const data = await api("/api/report/init", "POST", { date });
+  if (data.error) { setStatus("drStatus", "Error: " + data.error); return; }
+  drReport = data.report;
+  drText = "";
+  document.getElementById("dr_out").textContent = "No report generated yet.";
+  drPopulateForm(drReport);
+  const banner = document.getElementById("dr_banner");
+  if (data.resumed) {
+    banner.textContent = `Draft found for today (${drReport.report_number}). Continuing from last save.`;
+    banner.classList.remove("hidden");
+  } else {
+    banner.classList.add("hidden");
+  }
+  setStatus("drStatus", "");
+  // Auto-fetch weather only for a brand-new report without weather yet.
+  if (!data.resumed && !drReport.weather_morning && !drReport.weather_afternoon) {
+    drFetchWeather(true);
+  }
+}
+
+function drPopulateForm(r) {
+  document.getElementById("dr_no").value = r.report_number || "";
+  for (const [key, id] of Object.entries(DR_FIELDS)) {
+    document.getElementById(id).value = r[key] || "";
+  }
+  document.getElementById("dr_weather_badge").classList.toggle("hidden", !r.weather_auto_fetched);
+  drRenderFiles(r);
+}
+
+function drRenderFiles(r) {
+  const files = r.source_files || [];
+  const tbody = document.querySelector("#dr_files_table tbody");
+  tbody.innerHTML = files.map((f) => `<tr>
+    <td>${esc(f)}</td>
+    <td style="color:var(--muted)">${esc((f.split(".").pop() || "").toLowerCase())}</td>
+    <td><span class="link" onclick="drRemoveSource('${esc(f)}')">Remove</span></td>
+  </tr>`).join("");
+  document.getElementById("dr_files_note").textContent = `${files.length} file(s) loaded`;
+  document.getElementById("dr_extract_btn").classList.toggle("hidden", files.length === 0);
+}
+
+function drCollect() {
+  const r = Object.assign({}, drReport);
+  for (const [key, id] of Object.entries(DR_FIELDS)) r[key] = val(id);
+  return r;
+}
+
+async function drDateChange() {
+  const date = val("dr_date") || todayStr();
+  await drInitReport(date);
+}
+
+async function drFetchWeather(silent) {
+  if (!silent) setStatus("drStatus", "Fetching weather...");
+  const data = await api("/api/weather");
+  const note = document.getElementById("dr_weather_note");
+  if (!data.ok) {
+    note.textContent = data.configured === false
+      ? "Select a project city in Settings for auto weather."
+      : ("Weather unavailable: " + (data.error || "unknown"));
+    document.getElementById("dr_weather_badge").classList.add("hidden");
+    if (!silent) setStatus("drStatus", "");
+    return;
+  }
+  document.getElementById("dr_wx_am").value = data.morning || "";
+  document.getElementById("dr_wx_pm").value = data.afternoon || "";
+  document.getElementById("dr_weather_badge").classList.remove("hidden");
+  if (drReport) drReport.weather_auto_fetched = true;
+  note.textContent = "";
+  if (!silent) setStatus("drStatus", "Weather fetched.");
+}
+
+const DR_ALLOWED_EXT = ["txt", "pdf", "docx", "eml", "xlsx", "xlsm", "csv"];
+
+function drDragOver(e) {
+  e.preventDefault();
+  e.currentTarget.style.background = "#16202b";
+  e.currentTarget.style.borderColor = "var(--action)";
+}
+function drDragLeave(e) {
+  e.currentTarget.style.background = "";
+  e.currentTarget.style.borderColor = "var(--border)";
+}
+function drDrop(e) {
+  e.preventDefault();
+  drDragLeave(e);
+  drUploadFiles(e.dataTransfer.files);
+}
+
+function drUpload() {
+  drUploadFiles(document.getElementById("dr_file").files);
+}
+
+async function drUploadFiles(fileList) {
+  if (!(await drRequireReport())) return;
+  let files = Array.from(fileList || []);
+  const skipped = files.filter(
+    (f) => !DR_ALLOWED_EXT.includes((f.name.split(".").pop() || "").toLowerCase()));
+  files = files.filter(
+    (f) => DR_ALLOWED_EXT.includes((f.name.split(".").pop() || "").toLowerCase()));
+  if (!files.length) {
+    setStatus("drStatus", skipped.length
+      ? "No supported files (.txt .pdf .docx .eml)."
+      : "Choose or drop a file first.");
+    return;
+  }
+  let ok = 0, failed = 0;
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    setStatus("drStatus", `Uploading ${i + 1}/${files.length}: ${file.name}...`);
+    try {
+      const b64 = await fileToB64(file);
+      const data = await api("/api/report/upload", "POST",
+        { id: drReport.id, name: file.name, content_b64: b64 });
+      if (data.error) { failed++; }
+      else { ok++; drReport = data.report; }
+    } catch (err) { failed++; }
+  }
+  document.getElementById("dr_file").value = "";
+  drRenderFiles(drReport);
+  let msg = `Uploaded ${ok} file(s).`;
+  if (failed) msg += ` ${failed} failed.`;
+  if (skipped.length) msg += ` ${skipped.length} unsupported skipped.`;
+  setStatus("drStatus", msg);
+}
+
+async function drRemoveSource(name) {
+  if (!drReport) return;
+  const data = await api("/api/report/remove-source", "POST",
+    { id: drReport.id, filename: name });
+  if (data.report) { drReport = data.report; drRenderFiles(drReport); }
+}
+
+async function drExtract() {
+  if (!(await drRequireReport())) return;
+  setStatus("drStatus", "Reading files and extracting data...");
+  const data = await api("/api/report/extract", "POST", { id: drReport.id });
+  if (data.error) { setStatus("drStatus", "Error: " + data.error); return; }
+  const fields = data.fields || {};
+  if (!Object.keys(fields).length) {
+    setStatus("drStatus", data.message || "No data extracted."); return;
+  }
+  // Detect collisions with already-filled fields and ask once.
+  const keys = ["work_performed", "manpower", "equipment", "delays_issues",
+                "safety_observations", "visitors"];
+  const occupied = keys.filter((k) => fields[k] && val(DR_FIELDS[k]).trim());
+  let overwrite = true;
+  if (occupied.length) {
+    overwrite = confirm("Some fields already have content. Overwrite them with extracted data? (Cancel keeps existing text and fills only empty fields.)");
+  }
+  keys.forEach((k) => {
+    if (!fields[k]) return;
+    const el = document.getElementById(DR_FIELDS[k]);
+    if (overwrite || !el.value.trim()) el.value = fields[k];
+  });
+  setStatus("drStatus", "Fields extracted. Please review.");
+}
+
+async function drSaveDraft() {
+  if (!(await drRequireReport())) return;
+  setStatus("drStatus", "Saving draft...");
+  const data = await api("/api/report/save", "POST", { report: drCollect() });
+  if (data.error) { setStatus("drStatus", "Error: " + data.error); return; }
+  drReport = data.report;
+  setStatus("drStatus", "Draft saved: " + drReport.id);
+}
+
+async function drGenerate() {
+  if (!(await drRequireReport())) return;
+  await drSaveDraft();
+  setStatus("drStatus", "Generating report (calls the LLM)...");
+  const data = await api("/api/report/generate", "POST", { report: drCollect() });
+  if (data.error) { setStatus("drStatus", "Error: " + data.error); return; }
+  drText = data.text || "";
+  document.getElementById("dr_out").textContent = drText || "No output.";
+  setStatus("drStatus", "Report generated.");
+}
+
+function drDownload(id, fmt) {
+  const a = document.createElement("a");
+  a.href = `/api/report/file?id=${encodeURIComponent(id)}&fmt=${fmt}`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+function drDownloadSaved(id, files) {
+  // Trigger a browser download for each saved format (staggered so browsers
+  // don't block the second download).
+  const formats = Object.keys(files || {});
+  formats.forEach((fmt, i) => setTimeout(() => drDownload(id, fmt), i * 700));
+}
+
+async function drSaveFiles(fmt) {
+  if (fmt !== "xlsx" && !drText.trim()) { setStatus("drStatus", "Generate the report first."); return; }
+  if (!(await drRequireReport())) return;
+  await drSaveDraft();
+  setStatus("drStatus", "Saving files...");
+  const data = await api("/api/report/save-files", "POST",
+    { report: drCollect(), text: drText, format: fmt });
+  if (data.error) { setStatus("drStatus", "Error: " + data.error); return; }
+  const names = Object.values(data.files || {}).map((p) => p.split(/[\\/]/).pop());
+  setStatus("drStatus", "Saved & downloading: " + names.join(", "));
+  drDownloadSaved(drReport.id, data.files);
+}
+
+async function drFinalize() {
+  if (!(await drRequireReport())) return;
+  if (!confirm(`Finalize ${drReport.id}? It will be marked finalized.`)) return;
+  const data = await api("/api/report/finalize", "POST", { id: drReport.id });
+  if (data.report) {
+    drReport = data.report;
+    setStatus("drStatus", `Report ${drReport.id} finalized.`);
+  }
+}
+
+async function drOpenSend() {
+  if (!drText.trim()) { setStatus("drStatus", "Generate the report first."); return; }
+  await openDailySendDialog(drCollect(), drText);
+}
+
+async function openDailySendDialog(report, text) {
+  currentSendKind = "daily";
+  dailySendCtx = { report, text };
+  document.getElementById("sd_docLabel").textContent =
+    `Daily Report${report.project_name ? " · " + report.project_name : ""}`;
+  document.getElementById("sd_to").value = "";
+  document.getElementById("sd_cc").value = "";
+  document.getElementById("sd_bcc").value = "";
+  document.getElementById("sd_subject").value = "";
+  document.getElementById("sd_body").value = "Drafting email body...";
+  document.getElementById("sd_result").innerHTML = "";
+  const radio = document.querySelector('input[name=sd_fmt][value="both"]');
+  if (radio) radio.checked = true;
+  document.getElementById("sd_dry").checked = true;
+  updateDryBanner();
+  document.getElementById("sendModal").classList.remove("hidden");
+  renderContactPicker();
+  api("/api/report/subject-body", "POST", { report }).then((data) => {
+    if (currentSendKind !== "daily") return;
+    document.getElementById("sd_subject").value = data.subject || "";
+    document.getElementById("sd_body").value = data.body || "";
+  });
+}
+
+/* --- Past Reports --- */
+async function drLoadList() {
+  document.getElementById("dr_list").innerHTML = "Loading...";
+  const data = await api("/api/reports");
+  drListData = data.reports || [];
+  drRenderList();
+}
+
+function drRenderList() {
+  const filter = (val("dr_filter") || "").toLowerCase();
+  const rows = drListData.filter((r) =>
+    !filter || r.id.toLowerCase().includes(filter) ||
+    (r.status || "").toLowerCase().includes(filter) ||
+    (r.date || "").includes(filter));
+  if (!rows.length) {
+    document.getElementById("dr_list").innerHTML =
+      '<div class="cp-meta">No reports found.</div>';
+    return;
+  }
+  document.getElementById("dr_list").innerHTML = rows.map((r) => {
+    const docx = r.has_docx ? "✓ docx" : "✗ docx";
+    const pdf = r.has_pdf ? "✓ pdf" : "✗ pdf";
+    const style = r.status === "finalized"
+      ? "" : "font-style:italic;color:var(--muted)";
+    return `<div class="cp-row" style="cursor:pointer;${style}" onclick="drOpenDetail('${esc(r.id)}')">
+      <b>${esc(r.report_number)}</b>
+      <span>${esc(r.date)}</span>
+      <span class="cp-meta">${docx} · ${pdf} · ${esc(r.status)}</span>
+    </div>`;
+  }).join("");
+}
+
+const DD_FIELDS = {
+  project_name: "dd_project", prepared_by: "dd_prepared",
+  weather_morning: "dd_wx_am", weather_afternoon: "dd_wx_pm",
+  manpower: "dd_manpower", equipment: "dd_equipment",
+  work_performed: "dd_work", delays_issues: "dd_delays",
+  safety_observations: "dd_safety", visitors: "dd_visitors",
+};
+let ddReport = null;
+let ddText = "";
+
+async function drOpenDetail(id) {
+  const data = await api("/api/report?id=" + encodeURIComponent(id));
+  if (data.error || !data.report) {
+    document.getElementById("dr_detail").innerHTML =
+      '<div class="err">Could not load report.</div>';
+    return;
+  }
+  ddReport = data.report;
+  ddText = "";
+  const r = ddReport;
+  const wx = r.weather_auto_fetched ? '<span class="badge b-FYI">Auto</span>'
+    : '<span class="badge b-ARCHIVE">Manual</span>';
+  const ai = r.llm_extraction_used ? '<span class="badge b-ACTION">AI</span>' : "";
+  const fld = (label, key, h) => `<label>${label}</label>
+    <textarea id="${DD_FIELDS[key]}" style="min-height:${h || 70}px">${esc(r[key] || "")}</textarea>`;
+  document.getElementById("dr_detail").innerHTML = `
+    <div class="row" style="justify-content:space-between">
+      <b>${esc(r.report_number)} · ${esc(r.date)}</b>
+      <span class="badge ${r.status === "finalized" ? "b-FYI" : "b-ARCHIVE"}">${esc(r.status)}</span>
+    </div>
+    <div class="grid2" style="margin-top:8px">
+      <div><label>Project</label><input id="dd_project" value="${esc(r.project_name || "")}" /></div>
+      <div><label>Prepared By</label><input id="dd_prepared" value="${esc(r.prepared_by || "")}" /></div>
+    </div>
+    <div class="row" style="margin-top:6px">Weather ${wx} ${ai}</div>
+    <div class="grid2">
+      <div><label>Morning</label><input id="dd_wx_am" value="${esc(r.weather_morning || "")}" /></div>
+      <div><label>Afternoon</label><input id="dd_wx_pm" value="${esc(r.weather_afternoon || "")}" /></div>
+    </div>
+    ${fld("Manpower", "manpower")}
+    ${fld("Equipment", "equipment")}
+    ${fld("Work Performed", "work_performed", 110)}
+    ${fld("Delays / Issues", "delays_issues")}
+    ${fld("Safety Observations", "safety_observations")}
+    ${fld("Visitors", "visitors", 50)}
+    <div class="row" style="margin-top:12px">
+      <button class="btn" onclick="ddSave()">Save Changes</button>
+      <button class="btn secondary" onclick="ddRegenerate()">Regenerate Report</button>
+      <div class="dropdown">
+        <button class="btn secondary" onclick="toggleMenu(event, this)">Save as ▾</button>
+        <div class="menu">
+          <a onclick="ddSaveFiles('xlsx')">Save as Excel (.xlsx)</a>
+          <a onclick="ddSaveFiles('docx')">Save as Word</a>
+          <a onclick="ddSaveFiles('pdf')">Save as PDF</a>
+          <a onclick="ddSaveFiles('both')">Save as Both (Word + PDF)</a>
+        </div>
+      </div>
+      <button class="btn secondary" onclick="ddOpenSend()">Send</button>
+      <button class="btn secondary" onclick="ddDelete()">Delete Report</button>
+    </div>
+    <div class="card" style="margin-top:10px"><pre id="dd_out">${esc(ddText || "Regenerate to preview report text.")}</pre></div>
+    <div id="dd_status" class="spinner" style="margin-top:6px"></div>`;
+}
+
+function ddCollect() {
+  const r = Object.assign({}, ddReport);
+  for (const [key, id] of Object.entries(DD_FIELDS)) {
+    const el = document.getElementById(id);
+    if (el) r[key] = el.value;
+  }
+  return r;
+}
+
+async function ddSave() {
+  if (!ddReport) return;
+  let reopen = false;
+  if (ddReport.status === "finalized") {
+    if (!confirm("This report is finalized. Re-open it for editing?")) return;
+    reopen = true;
+  }
+  setStatus("dd_status", "Saving...");
+  const data = await api("/api/report/save", "POST", { report: ddCollect(), reopen });
+  if (data.error) { setStatus("dd_status", "Error: " + data.error); return; }
+  ddReport = data.report;
+  setStatus("dd_status", "Saved.");
+  drLoadList();
+  drOpenDetail(ddReport.id);
+}
+
+async function ddRegenerate() {
+  if (!ddReport) return;
+  setStatus("dd_status", "Generating (calls the LLM)...");
+  const data = await api("/api/report/generate", "POST", { report: ddCollect() });
+  if (data.error) { setStatus("dd_status", "Error: " + data.error); return; }
+  ddText = data.text || "";
+  document.getElementById("dd_out").textContent = ddText || "No output.";
+  setStatus("dd_status", "Report regenerated.");
+}
+
+async function ddSaveFiles(fmt) {
+  if (fmt !== "xlsx" && !ddText.trim()) { setStatus("dd_status", "Regenerate the report first."); return; }
+  setStatus("dd_status", "Saving files...");
+  const data = await api("/api/report/save-files", "POST",
+    { report: ddCollect(), text: ddText, format: fmt });
+  if (data.error) { setStatus("dd_status", "Error: " + data.error); return; }
+  const names = Object.values(data.files || {}).map((p) => p.split(/[\\/]/).pop());
+  setStatus("dd_status", "Saved & downloading: " + names.join(", "));
+  drDownloadSaved(ddReport.id, data.files);
+  drLoadList();
+}
+
+async function ddOpenSend() {
+  if (!ddText.trim()) { setStatus("dd_status", "Regenerate the report first."); return; }
+  await openDailySendDialog(ddCollect(), ddText);
+}
+
+async function ddDelete() {
+  if (!ddReport) return;
+  if (!confirm(`Delete ${ddReport.id}? This cannot be undone.`)) return;
+  const data = await api("/api/report/delete", "POST", { id: ddReport.id });
+  if (data.deleted) {
+    document.getElementById("dr_detail").innerHTML =
+      '<div class="cp-meta">Report deleted.</div>';
+    ddReport = null;
+    drLoadList();
+  }
+}
+/* =================== END DAILY REPORT MODULE =================== */
+
+let contactsState = [];
+
+async function loadContacts() {
+  setStatus("ctStatus", "Loading...");
+  const data = await api("/api/contacts");
+  contactsState = data.contacts || [];
+  renderContacts();
+  setStatus("ctStatus", `${contactsState.length} contacts.`);
+}
+
+function renderContacts() {
+  const levels = ["normal", "vip", "urgent"];
+  const labels = { normal: "Normal", vip: "VIP", urgent: "Urgent" };
+  if (!contactsState.length) {
+    document.getElementById("contactsTable").innerHTML =
+      '<tbody><tr><td style="color:var(--muted)">No contacts yet. Load the inbox to auto-capture senders, or add one above.</td></tr></tbody>';
+    return;
+  }
+  const rows = contactsState
+    .map((c, i) => {
+      const opts = levels
+        .map((l) => `<option value="${l}" ${c.importance === l ? "selected" : ""}>${labels[l]}</option>`)
+        .join("");
+      const badge = c.importance !== "normal"
+        ? `<span class="badge b-${c.importance === "urgent" ? "URGENT" : "ACTION"}">${labels[c.importance]}</span>`
+        : "";
+      return `<tr>
+        <td>${esc(c.name || "")}</td>
+        <td>${esc(c.email)}</td>
+        <td><input value="${esc(c.role || "")}" onchange="setContactRole(${i}, this.value)" style="max-width:150px" /></td>
+        <td><select onchange="setContactImportance(${i}, this.value)">${opts}</select> ${badge}</td>
+        <td style="text-align:center"><input type="checkbox" ${c.cc_always ? "checked" : ""} onchange="setContactCc(${i}, this.checked)" style="width:auto" /></td>
+        <td><a class="link" onclick="deleteContact(${i})">Delete</a></td>
+      </tr>`;
+    })
+    .join("");
+  document.getElementById("contactsTable").innerHTML =
+    `<thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Classification</th><th>CC always</th><th></th></tr></thead><tbody>${rows}</tbody>`;
+}
+
+function setContactImportance(i, value) {
+  if (contactsState[i]) contactsState[i].importance = value;
+  renderContacts();
+}
+
+function setContactRole(i, value) {
+  if (contactsState[i]) contactsState[i].role = value;
+}
+
+function setContactCc(i, value) {
+  if (contactsState[i]) contactsState[i].cc_always = value;
+}
+
+function deleteContact(i) {
+  contactsState.splice(i, 1);
+  renderContacts();
+}
+
+function addContact() {
+  const email = val("ct_email").trim().toLowerCase();
+  if (!email) { setStatus("ctStatus", "Enter an email address."); return; }
+  const ccAlways = document.getElementById("ct_cc").checked;
+  const existing = contactsState.find((c) => c.email === email);
+  if (existing) {
+    existing.name = val("ct_name").trim() || existing.name;
+    existing.role = val("ct_role").trim() || existing.role;
+    existing.importance = val("ct_importance");
+    existing.cc_always = ccAlways;
+  } else {
+    contactsState.push({
+      name: val("ct_name").trim(), email, role: val("ct_role").trim(),
+      importance: val("ct_importance"), cc_always: ccAlways,
+    });
+  }
+  document.getElementById("ct_name").value = "";
+  document.getElementById("ct_email").value = "";
+  document.getElementById("ct_role").value = "";
+  document.getElementById("ct_cc").checked = false;
+  renderContacts();
+  saveContacts();
+}
+
+async function saveContacts() {
+  setStatus("ctStatus", "Saving...");
+  const data = await api("/api/contacts", "POST", { contacts: contactsState });
+  if (data.saved) {
+    contactsState = data.contacts || [];
+    renderContacts();
+    setStatus("ctStatus", "Saved. Triage updated — reload the inbox to see changes.");
+  } else {
+    setStatus("ctStatus", "Save failed.");
+  }
+}
+
+let profilesState = { active: 0, profiles: [] };
+const PROF_FIELDS = ["first", "last", "title", "company", "phone", "email", "project"];
+const PROF_KEYS = {
+  first: "first_name", last: "last_name", title: "title",
+  company: "company", phone: "phone", email: "email", project: "project",
+};
+
+let citiesData = [];
+
+async function loadCities() {
+  const data = await api("/api/cities");
+  citiesData = data.cities || [];
+  const sel = document.getElementById("prof_city");
+  if (!sel) return;
+  sel.innerHTML = '<option value="">(none — set in .env or skip)</option>' +
+    citiesData.map((c) => `<option value="${esc(c.name)}">${esc(c.name)}</option>`).join("");
+}
+
+function onCityChange() {
+  const name = val("prof_city");
+  const city = citiesData.find((c) => c.name === name);
+  document.getElementById("prof_coords").textContent =
+    city ? `(${city.lat}, ${city.lng})` : "";
+}
+
+async function loadProfiles() {
+  if (!citiesData.length) await loadCities();
+  const data = await api("/api/profiles");
+  profilesState = { active: data.active || 0, profiles: data.profiles || [] };
+  renderProfileSelect();
+  loadProfileIntoFields(profilesState.active);
+  applyDefaultProject();
+}
+
+function applyDefaultProject() {
+  const p = profilesState.profiles[profilesState.active];
+  const project = (p && p.project) ? p.project : "";
+  if (!project) return;
+  ["rfi_project", "sub_project", "del_project"].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.value = project;
+  });
+}
+
+function renderProfileSelect() {
+  const sel = document.getElementById("prof_select");
+  if (!profilesState.profiles.length) {
+    sel.innerHTML = '<option value="-1">(no profiles — click Add profile)</option>';
+    return;
+  }
+  sel.innerHTML = profilesState.profiles
+    .map((p, i) => {
+      const name = [p.first_name, p.last_name].filter(Boolean).join(" ") || `Profile ${i + 1}`;
+      const label = p.title ? `${name} — ${p.title}` : name;
+      return `<option value="${i}" ${i === profilesState.active ? "selected" : ""}>${esc(label)}</option>`;
+    })
+    .join("");
+}
+
+function loadProfileIntoFields(idx) {
+  const p = profilesState.profiles[idx];
+  PROF_FIELDS.forEach((f) => {
+    document.getElementById("prof_" + f).value = p ? (p[PROF_KEYS[f]] || "") : "";
+  });
+  const citySel = document.getElementById("prof_city");
+  if (citySel) citySel.value = p ? (p.site_city || "") : "";
+  onCityChange();
+  updateProfilePreview();
+}
+
+function readFieldsIntoProfile(idx) {
+  if (idx < 0 || !profilesState.profiles[idx]) return;
+  const p = {};
+  PROF_FIELDS.forEach((f) => (p[PROF_KEYS[f]] = document.getElementById("prof_" + f).value.trim()));
+  const cityName = val("prof_city");
+  const city = citiesData.find((c) => c.name === cityName);
+  p.site_city = cityName;
+  p.site_lat = city ? String(city.lat) : "";
+  p.site_lng = city ? String(city.lng) : "";
+  profilesState.profiles[idx] = p;
+}
+
+function onProfileSelect() {
+  const idx = parseInt(document.getElementById("prof_select").value, 10);
+  if (idx < 0) return;
+  profilesState.active = idx;
+  loadProfileIntoFields(idx);
+}
+
+function addProfile() {
+  profilesState.profiles.push({ first_name: "", last_name: "", title: "", company: "", phone: "", email: "", project: "", site_city: "", site_lat: "", site_lng: "" });
+  profilesState.active = profilesState.profiles.length - 1;
+  renderProfileSelect();
+  loadProfileIntoFields(profilesState.active);
+}
+
+function deleteProfile() {
+  if (!profilesState.profiles.length) return;
+  profilesState.profiles.splice(profilesState.active, 1);
+  profilesState.active = 0;
+  renderProfileSelect();
+  loadProfileIntoFields(0);
+  saveProfiles();
+}
+
+function updateProfilePreview() {
+  const lines = [];
+  const name = [val("prof_first"), val("prof_last")].filter((s) => s.trim()).join(" ");
+  if (name.trim()) lines.push(name.trim());
+  if (val("prof_title").trim()) lines.push(val("prof_title").trim());
+  if (val("prof_company").trim()) lines.push(val("prof_company").trim());
+  if (val("prof_phone").trim()) lines.push("Phone: " + val("prof_phone").trim());
+  if (val("prof_email").trim()) lines.push("Email: " + val("prof_email").trim());
+  document.getElementById("prof_preview").textContent = lines.length ? lines.join("\n") : "No details entered.";
+}
+
+async function saveProfiles() {
+  const idx = parseInt(document.getElementById("prof_select").value, 10);
+  if (idx >= 0) { readFieldsIntoProfile(idx); profilesState.active = idx; }
+  setStatus("profStatus", "Saving...");
+  const data = await api("/api/profiles", "POST", profilesState);
+  if (data.saved) {
+    profilesState = { active: data.active || 0, profiles: data.profiles || [] };
+    renderProfileSelect();
+    loadProfileIntoFields(profilesState.active);
+    setStatus("profStatus", "Saved. This signature is now used in all drafts.");
+  } else {
+    setStatus("profStatus", "Save failed.");
+  }
+}
+
+PROF_FIELDS.forEach((f) =>
+  document.addEventListener("input", (e) => {
+    if (e.target && e.target.id === "prof_" + f) updateProfilePreview();
+  })
+);
+
+let triageDefaults = null;
+
+async function loadTriageConfig() {
+  setStatus("cfgStatus", "Loading...");
+  const data = await api("/api/triage-config");
+  triageDefaults = data.defaults;
+  fillCfg(data.config);
+  setStatus("cfgStatus", "Loaded.");
+}
+
+function fillCfg(cfg) {
+  document.getElementById("cfg_urgent").value = (cfg.urgent || []).join("\n");
+  document.getElementById("cfg_action").value = (cfg.action || []).join("\n");
+  document.getElementById("cfg_fyi").value = (cfg.fyi || []).join("\n");
+  document.getElementById("cfg_vip").value = (cfg.vip || []).join("\n");
+}
+
+const linesOf = (id) =>
+  val(id).split("\n").map((s) => s.trim()).filter((s) => s.length);
+
+async function saveTriageConfig() {
+  setStatus("cfgStatus", "Saving...");
+  const body = {
+    urgent: linesOf("cfg_urgent"), action: linesOf("cfg_action"),
+    fyi: linesOf("cfg_fyi"), vip: linesOf("cfg_vip"),
+  };
+  const data = await api("/api/triage-config", "POST", body);
+  if (data.saved) {
+    fillCfg(data.config);
+    setStatus("cfgStatus", "Saved and applied. Reload the inbox to see changes.");
+  } else {
+    setStatus("cfgStatus", "Save failed: " + (data.error || "unknown error"));
+  }
+}
+
+function resetTriageConfig() {
+  if (triageDefaults) fillCfg(triageDefaults);
+  setStatus("cfgStatus", "Defaults loaded — click 'Save & apply' to confirm.");
+}
+
+let memDocs = [];
+
+async function loadMemory() {
+  setStatus("memStatus", "Loading...");
+  const data = await api("/api/memory");
+  memDocs = data.documents || [];
+  document.getElementById("memOut").textContent =
+    `${data.summary}\nKnown sender profiles: ${data.profiles}\nSent history entries: ${data.sent_history}\nSaved documents: ${memDocs.length}`;
+  renderMemDocs();
+  setStatus("memStatus", "");
+}
+
+function renderMemDocs() {
+  const table = document.getElementById("memDocsTable");
+  const filter = (document.getElementById("memDocFilter") || {}).value || "";
+  const docs = filter ? memDocs.filter((f) => f.type === filter) : memDocs;
+  document.getElementById("memDocCount").textContent =
+    `${docs.length} document(s)` + (filter ? ` · ${filter}` : "");
+  if (!docs.length) {
+    table.innerHTML =
+      '<tbody><tr><td style="color:var(--muted)">No saved documents yet. Generate one in Create Document and click Save.</td></tr></tbody>';
+    return;
+  }
+  const rows = docs.map((f, i) =>
+    `<tr>
+      <td>${esc(f.name)}</td>
+      <td><span class="badge b-ACTION">${esc(f.type || "Document")}</span></td>
+      <td class="cp-meta">${fmtSize(f.size)}</td>
+      <td class="cp-meta">${esc(f.modified)}</td>
+      <td><a class="link" href="${esc(f.download_url)}">Download</a></td>
+      <td><a class="link" onclick="deleteMemDoc(${i})">Delete</a></td>
+    </tr>`
+  ).join("");
+  table.innerHTML =
+    `<thead><tr><th>Document</th><th>Type</th><th>Size</th><th>Saved</th><th></th><th></th></tr></thead><tbody>${rows}</tbody>`;
+}
+
+async function deleteMemDoc(idx) {
+  const filter = (document.getElementById("memDocFilter") || {}).value || "";
+  const docs = filter ? memDocs.filter((f) => f.type === filter) : memDocs;
+  const f = docs[idx];
+  if (!f) return;
+  if (!confirm(`Delete "${f.name}"? This cannot be undone.`)) return;
+  setStatus("memStatus", "Deleting...");
+  let data;
+  if (f.source === "report") {
+    data = await api("/api/report-file/delete", "POST", { report_id: f.report_id, fmt: f.fmt });
+  } else {
+    data = await api("/api/output-files/delete", "POST", { name: f.name });
+  }
+  if (data.error) { setStatus("memStatus", "Error: " + data.error); return; }
+  loadMemory();
+}
+
+// --- Contracts (file management) ------------------------------------------
+async function loadContractFiles() {
+  setStatus("cfStatus", "Loading...");
+  const data = await api("/api/contract-files");
+  const files = data.files || [];
+  const table = document.getElementById("contractsFilesTable");
+  if (!files.length) {
+    table.innerHTML =
+      '<tbody><tr><td style="color:var(--muted)">No contracts uploaded yet.</td></tr></tbody>';
+  } else {
+    const rows = files.map((f) =>
+      `<tr>
+        <td>${esc(f.name)}</td>
+        <td class="cp-meta">${fmtSize(f.size)}</td>
+        <td class="cp-meta">${esc(f.modified)}</td>
+        <td><a class="link" onclick="deleteContractFile('${esc(f.name)}')">Delete</a></td>
+      </tr>`
+    ).join("");
+    table.innerHTML =
+      `<thead><tr><th>File</th><th>Size</th><th>Modified</th><th></th></tr></thead><tbody>${rows}</tbody>`;
+  }
+  setStatus("cfStatus", `${files.length} file(s).`);
+}
+
+function fmtSize(bytes) {
+  if (bytes < 1024) return bytes + " B";
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+  return (bytes / 1024 / 1024).toFixed(1) + " MB";
+}
+
+function uploadContract() {
+  const input = document.getElementById("cf_file");
+  const file = input.files && input.files[0];
+  if (!file) { setStatus("cfStatus", "Choose a file first."); return; }
+  setStatus("cfStatus", "Uploading...");
+  const reader = new FileReader();
+  reader.onload = async () => {
+    const b64 = String(reader.result).split(",")[1] || "";
+    const data = await api("/api/contract-files", "POST", { name: file.name, content_b64: b64 });
+    if (data.error) { setStatus("cfStatus", "Error: " + data.error); return; }
+    input.value = "";
+    loadContractFiles();
+  };
+  reader.onerror = () => setStatus("cfStatus", "Could not read the file.");
+  reader.readAsDataURL(file);
+}
+
+async function deleteContractFile(name) {
+  if (!confirm(`Delete "${name}"?`)) return;
+  setStatus("cfStatus", "Deleting...");
+  const data = await api("/api/contract-files/delete", "POST", { name });
+  if (data.error) { setStatus("cfStatus", "Error: " + data.error); return; }
+  loadContractFiles();
+}
+
+// --- Delay Notice: pull fields from an uploaded contract -------------------
+async function loadDelayContracts() {
+  const sel = document.getElementById("del_contract_file");
+  if (!sel) return;
+  const prev = sel.value;
+  const data = await api("/api/contract-files");
+  const files = data.files || [];
+  sel.innerHTML = '<option value="">— select an uploaded contract —</option>' +
+    files.map((f) => `<option value="${esc(f.name)}">${esc(f.name)}</option>`).join("");
+  if (prev) sel.value = prev;
+}
+
+async function delayExtractFromContract() {
+  const name = val("del_contract_file");
+  if (!name) { setStatus("delExtractStatus", "Pick a contract file first."); return; }
+  setStatus("delExtractStatus", "Reading contract...");
+  const data = await api("/api/contract-files/extract", "POST", { name });
+  if (data.error) { setStatus("delExtractStatus", "Error: " + data.error); return; }
+  const f = data.fields || {};
+  if (f.project_name) document.getElementById("del_project").value = f.project_name;
+  if (f.contract_no) document.getElementById("del_contract").value = f.contract_no;
+  if (f.contract_section) document.getElementById("del_section").value = f.contract_section;
+  const filled = ["project_name", "contract_no", "contract_section"].filter((k) => f[k]).length;
+  setStatus("delExtractStatus", filled ? `Filled ${filled} field(s) from contract.` : "No matching fields found in this contract.");
+}
+
+const val = (id) => document.getElementById(id).value;
+const esc = (s) => (s || "").replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+const setStatus = (id, msg) => (document.getElementById(id).textContent = msg);
+
+loadStatus();
+loadInbox();
+loadTriageConfig();
+loadProfiles();
+loadContacts();
+</script>
+</body>
+</html>

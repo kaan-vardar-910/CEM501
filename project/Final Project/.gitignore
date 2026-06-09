@@ -1,0 +1,13 @@
+.env
+project/sent_log.txt
+project/memory.json
+project/telegram_sent.json
+project/logs/session_*.log
+project/outputs/
+project/contracts/
+project/daily_uploads/
+project/reports/
+__pycache__/
+*.pyc
+*.pyo
+.DS_Store
